@@ -5,6 +5,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // GitHub Pages project-site path; update if the repository name changes.
+    base: '/SEO-Algorithm-Classroom-Simulator/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
