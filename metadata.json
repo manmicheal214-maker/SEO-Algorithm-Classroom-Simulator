@@ -1,0 +1,8 @@
+{
+  "name": "SEO Algorithm Classroom Simulator",
+  "description": "The definitive interactive educational simulator visualizing Google search engine history across 16 landmark algorithm updates: Florida, BigDaddy, Universal Search, Vince, Caffeine, Panda, Penguin, Pirate, Hummingbird, Pigeon, Mobilegeddon, RankBrain, Medic, BERT, Core Web Vitals, and Helpful Content/E-E-A-T.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

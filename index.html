@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Ultimate Google Algorithm Update Simulator (2003–2024)</title>
+  <meta name="description" content="The definitive interactive educational simulator visualizing Google search engine history across 16 landmark algorithm updates from Florida (2003) to Helpful Content and Modern E-E-A-T." />
+  <meta property="og:title" content="The Ultimate Google Algorithm Update Simulator (2003–2024)" />
+  <meta property="og:description" content="The definitive interactive educational simulator visualizing Google search engine history across 16 landmark algorithm updates from Florida (2003) to Helpful Content and Modern E-E-A-T." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEME
+       ========================================================================== */
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'IBM Plex Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      /* Google Algorithmic Color Palette */
+      --google-blue: #1a73e8;
+      --google-blue-dark: #1557b0;
+      --google-blue-light: #e8f0fe;
+      --google-blue-border: #8ab4f8;
+
+      --google-red: #d93025;
+      --google-red-dark: #a51d14;
+      --google-red-light: #fce8e6;
+      --google-red-border: #f28b82;
+
+      --google-green: #137333;
+      --google-green-dark: #0d5223;
+      --google-green-light: #e6f4ea;
+      --google-green-border: #81c995;
+
+      --google-yellow: #ea8600;
+      --google-yellow-light: #fef7e0;
+
+      /* Neutrals */
+      --bg-page: #f8f9fa;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f3f4;
+      --border-subtle: #dadce0;
+      --border-dark: #bdc1c6;
+      --text-main: #202124;
+      --text-secondary: #5f6368;
+      --text-muted: #80868b;
+
+      /* Authentic SERP Colors */
+      --serp-title-blue: #1a0dab;
+      --serp-url-green: #006621;
+      --serp-snippet-grey: #4d5156;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(32, 33, 36, 0.08);
+      --shadow-md: 0 4px 14px rgba(32, 33, 36, 0.09);
+      --shadow-lg: 0 10px 30px rgba(32, 33, 36, 0.12);
+      --transition-smooth: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       HEADER & TOP BAR (Strict 3-Zone Contract)
+       ========================================================================== */
+    .top-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-header-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    /* Zone 1: Wordmark */
+    .brand-wordmark {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--text-main);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: #1a73e8;
+      color: #fff;
+      border-radius: 7px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .brand-accent {
+      color: var(--google-blue);
+    }
+
+    /* Zone 2: Navigation Links (Chronological Era Chapters) */
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .chapter-tab-btn {
+      background: none;
+      border: 1px solid transparent;
+      font-family: var(--font-sans);
+      font-size: 0.78125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.35rem 0.65rem;
+      border-radius: 20px;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+
+    .chapter-tab-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-subtle);
+    }
+
+    .chapter-tab-btn.active-chapter {
+      color: var(--google-blue);
+      background: var(--google-blue-light);
+      border-color: var(--google-blue-border);
+      font-weight: 700;
+    }
+
+    /* Zone 3: Primary Action & Stepper */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .stepper-btn {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.65rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: var(--transition-smooth);
+    }
+
+    .stepper-btn:hover:not(:disabled) {
+      background: var(--bg-subtle);
+      border-color: var(--border-dark);
+    }
+
+    .stepper-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      font-family: var(--font-sans);
+      font-size: 0.78125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border-dark);
+    }
+
+    /* ==========================================================================
+       SUB-BANNER: CLASSROOM CONTEXT STRIP
+       ========================================================================== */
+    .classroom-strip {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.45rem 1.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .classroom-strip-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pedagogy-chip {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--bg-subtle);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .classroom-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+    }
+
+    .stat-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       MAIN WORKSPACE (Split Screen 2-Column Dashboard)
+       ========================================================================== */
+    .app-viewport {
+      max-width: 1600px;
+      margin: 1rem auto;
+      padding: 0 1.5rem 2rem 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 500px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1180px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+      .header-nav {
+        display: none;
+      }
+    }
+
+    /* ==========================================================================
+       LEFT PANEL: CONTROL CENTER & TIMELINE STATE MACHINE
+       ========================================================================== */
+    .control-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #fafafa;
+    }
+
+    .panel-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .panel-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .panel-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    /* Quick Timeline Selector Dropdown (All 16 Updates) */
+    .timeline-quick-select-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .quick-select-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .timeline-select {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .timeline-select:focus {
+      outline: none;
+      border-color: var(--google-blue);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+    }
+
+    /* Era Navigation Grid (Shows the 4 items of active chapter) */
+    .chapter-items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+
+    .era-pill-btn {
+      font-family: var(--font-sans);
+      font-size: 0.78125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      padding: 0.5rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .era-pill-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-dark);
+      background: #fafafa;
+    }
+
+    .era-pill-btn.active {
+      background: var(--google-blue-light);
+      color: var(--google-blue);
+      border-color: var(--google-blue-border);
+      box-shadow: 0 1px 3px rgba(26, 115, 232, 0.1);
+    }
+
+    .era-pill-year {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .era-pill-btn.active .era-pill-year {
+      color: var(--google-blue-dark);
+      font-weight: 600;
+    }
+
+    /* Era Briefing Callout */
+    .era-briefing {
+      background: #f8fafd;
+      border: 1px solid #d2e3fc;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.85rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .era-briefing-title {
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .era-quote {
+      font-style: italic;
+      border-left: 2px solid var(--google-blue);
+      padding-left: 0.5rem;
+      margin-top: 0.4rem;
+      font-size: 0.75rem;
+      color: #3c4043;
+    }
+
+    /* Universal Variable Dropdown */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .custom-select-wrapper {
+      position: relative;
+    }
+
+    .config-dropdown {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 2.25rem 0.7rem 0.75rem;
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: var(--transition-smooth);
+    }
+
+    .config-dropdown:focus {
+      outline: none;
+      border-color: var(--google-blue);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+    }
+
+    .select-chevron {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-secondary);
+    }
+
+    /* Execution Control Block */
+    .execution-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .btn-primary {
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--google-blue);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1.25rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.25);
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-primary:hover {
+      background: var(--google-blue-dark);
+      box-shadow: 0 4px 10px rgba(26, 115, 232, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-revert {
+      font-family: var(--font-sans);
+      font-size: 0.78125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px dashed var(--border-dark);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      text-align: center;
+    }
+
+    .btn-revert:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-style: solid;
+    }
+
+    .status-pill-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.65rem;
+      background: var(--bg-subtle);
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Dynamic Educational Analysis Box */
+    .education-box {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .edu-header {
+      padding: 0.75rem 1.25rem;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .edu-header-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .edu-content {
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      font-size: 0.8125rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    .edu-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.2rem;
+    }
+
+    .edu-highlight {
+      background: #f1f3f4;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.78125rem;
+      color: #202124;
+      border-left: 3px solid var(--google-blue);
+    }
+
+    .edu-highlight.penalty {
+      background: var(--google-red-light);
+      border-left-color: var(--google-red);
+      color: var(--google-red-dark);
+    }
+
+    .edu-highlight.brand {
+      background: var(--google-blue-light);
+      border-left-color: var(--google-blue);
+      color: var(--google-blue-dark);
+    }
+
+    .edu-highlight.quality {
+      background: var(--google-green-light);
+      border-left-color: var(--google-green);
+      color: var(--google-green-dark);
+    }
+
+    .edu-takeaway {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: var(--radius-sm);
+      padding: 0.7rem;
+      font-size: 0.75rem;
+      color: #6d4c41;
+    }
+
+    .edu-takeaway-label {
+      font-weight: 700;
+      color: #4e342e;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    /* ==========================================================================
+       RIGHT PANEL: LIVE REACTIVE MOCK SERP
+       ========================================================================== */
+    .serp-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .serp-container-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Authentic Search Header Bar */
+    .serp-searchbar-header {
+      padding: 1.15rem 1.5rem 0.85rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .serp-logo-search-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .serp-google-logo {
+      font-family: var(--font-sans);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .logo-g1 { color: #4285f4; }
+    .logo-o1 { color: #ea4335; }
+    .logo-o2 { color: #fbbc05; }
+    .logo-g2 { color: #4285f4; }
+    .logo-l  { color: #34a853; }
+    .logo-e  { color: #ea4335; }
+
+    .serp-search-input-box {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .serp-fake-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 45px 0 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      color: var(--text-main);
+      background: #ffffff;
+      box-shadow: 0 1px 6px rgba(32,33,36,0.12);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .serp-fake-input:focus {
+      border-color: transparent;
+      box-shadow: 0 1px 8px rgba(32,33,36,0.22);
+    }
+
+    .serp-search-icon {
+      position: absolute;
+      right: 16px;
+      color: #4285f4;
+      pointer-events: none;
+    }
+
+    /* Era Navigation & Mode Indicator */
+    .serp-meta-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .serp-count-text {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .serp-engine-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      color: var(--text-main);
+    }
+
+    /* The Results List */
+    .serp-results-list {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      min-height: 520px;
+    }
+
+    /* Individual SERP Result Card */
+    .serp-item {
+      position: relative;
+      padding: 0.95rem 1.2rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      transition: var(--transition-smooth);
+      display: flex;
+      gap: 0.95rem;
+    }
+
+    .serp-item:hover {
+      background: #fafafa;
+    }
+
+    /* Rank Position Number Column */
+    .serp-rank-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.35rem;
+      width: 52px;
+      flex-shrink: 0;
+      padding-top: 0.2rem;
+    }
+
+    .rank-number {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      line-height: 1;
+    }
+
+    .rank-delta {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .delta-up {
+      color: var(--google-green);
+      background: var(--google-green-light);
+    }
+
+    .delta-down {
+      color: var(--google-red);
+      background: var(--google-red-light);
+    }
+
+    .delta-neutral {
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+    }
+
+    .serp-content-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    /* Display URL & Cached Link */
+    .serp-url-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .serp-display-url {
+      font-size: 0.8125rem;
+      color: var(--serp-url-green);
+      font-family: var(--font-sans);
+      word-break: break-all;
+    }
+
+    .serp-cached-link {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Badges */
+    .serp-status-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge-organic {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .badge-penalized {
+      background: var(--google-red-light);
+      color: var(--google-red-dark);
+      border: 1px solid var(--google-red-border);
+    }
+
+    .badge-penguin-penalty {
+      background: #680d07;
+      color: #ffffff;
+      border: 1px solid #490804;
+    }
+
+    .badge-thin-content {
+      background: #f1f3f4;
+      color: #70757a;
+      border: 1px dashed #9aa0a6;
+    }
+
+    .badge-brand-boost {
+      background: var(--google-blue-light);
+      color: var(--google-blue-dark);
+      border: 1px solid var(--google-blue-border);
+    }
+
+    .badge-boost-green {
+      background: var(--google-green-light);
+      color: var(--google-green-dark);
+      border: 1px solid var(--google-green-border);
+    }
+
+    .badge-warning {
+      background: #fff0e6;
+      color: #b93800;
+      border: 1px solid #f9ab7c;
+    }
+
+    /* SERP Page Title */
+    .serp-title {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--serp-title-blue);
+      text-decoration: none;
+      line-height: 1.3;
+      cursor: pointer;
+    }
+
+    .serp-title:hover {
+      text-decoration: underline;
+    }
+
+    /* Snippet Text */
+    .serp-snippet {
+      font-size: 0.84375rem;
+      color: var(--serp-snippet-grey);
+      line-height: 1.5;
+    }
+
+    .serp-snippet em {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text-main);
+    }
+
+    .status-annotation {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 4px;
+      margin-top: 0.35rem;
+      display: inline-block;
+      line-height: 1.4;
+    }
+
+    .annotation-red {
+      color: var(--google-red-dark);
+      background: var(--google-red-light);
+      border: 1px dashed var(--google-red-border);
+    }
+
+    .annotation-darkred {
+      color: #ffffff;
+      background: #7a100a;
+      border: 1px solid #490804;
+    }
+
+    .annotation-blue {
+      color: var(--google-blue-dark);
+      background: var(--google-blue-light);
+      border: 1px dashed var(--google-blue-border);
+    }
+
+    .annotation-green {
+      color: var(--google-green-dark);
+      background: var(--google-green-light);
+      border: 1px dashed var(--google-green-border);
+    }
+
+    .annotation-orange {
+      color: #9c3300;
+      background: #fff1e8;
+      border: 1px dashed #f9ab7c;
+    }
+
+    .annotation-faded {
+      color: #5f6368;
+      background: #f1f3f4;
+      border: 1px dashed #bdc1c6;
+    }
+
+    /* Technical Signals Drawer per Card */
+    .signals-toggle-btn {
+      align-self: flex-start;
+      margin-top: 0.5rem;
+      background: none;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 0.2rem 0.55rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: var(--transition-smooth);
+    }
+
+    .signals-toggle-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border-dark);
+    }
+
+    .signals-drawer {
+      display: none;
+      margin-top: 0.65rem;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .signals-drawer.open {
+      display: block;
+    }
+
+    .signals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .sig-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .sig-name {
+      color: var(--text-muted);
+      font-size: 0.68rem;
+    }
+
+    .sig-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       SPECIALIZED CARD STYLING STATES
+       ========================================================================== */
+    .serp-item.state-penalized-red {
+      border: 2px solid var(--google-red);
+      background-color: #fff8f8;
+      box-shadow: 0 2px 8px rgba(217, 48, 37, 0.15);
+    }
+    .serp-item.state-penalized-red .serp-title { color: #b31412; }
+    .serp-item.state-penalized-red .rank-number { color: var(--google-red); }
+
+    .serp-item.state-penguin-darkred {
+      border: 2px solid #80120a;
+      background-color: #fcf1f0;
+      box-shadow: 0 2px 8px rgba(128, 18, 10, 0.2);
+    }
+    .serp-item.state-penguin-darkred .serp-title { color: #730e07; text-decoration: line-through; }
+    .serp-item.state-penguin-darkred .rank-number { color: #80120a; }
+
+    .serp-item.state-panda-thin {
+      opacity: 0.42;
+      border: 2px dashed #9aa0a6;
+      background-color: #f8f9fa;
+      filter: grayscale(40%);
+    }
+
+    .serp-item.state-warning-orange {
+      border: 2px solid #e8710a;
+      background-color: #fff9f5;
+    }
+    .serp-item.state-warning-orange .rank-number { color: #c45500; }
+
+    .serp-item.state-brand-boost {
+      border: 2px solid var(--google-blue);
+      background-color: #f7faff;
+      box-shadow: 0 2px 8px rgba(26, 115, 232, 0.15);
+    }
+    .serp-item.state-brand-boost .serp-title { color: var(--google-blue-dark); font-weight: 600; }
+    .serp-item.state-brand-boost .rank-number { color: var(--google-blue); }
+
+    .serp-item.state-green-boost {
+      border: 2px solid var(--google-green);
+      background-color: #f7fbf8;
+      box-shadow: 0 2px 8px rgba(19, 115, 51, 0.12);
+    }
+    .serp-item.state-green-boost .rank-number { color: var(--google-green); }
+
+    /* Blended Universal Media / Rich Card Special Accents */
+    .blended-media-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #c5221f;
+      background: #fce8e6;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    @keyframes cardReorder {
+      0% { opacity: 0.4; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .serp-item.animate-reorder {
+      animation: cardReorder 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Discussion Prompts Section */
+    .classroom-footer-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .classroom-footer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .discussion-prompt-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .discussion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .prompt-card {
+      background: #fafafa;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.875rem 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .prompt-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--google-blue);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .prompt-text {
+      color: var(--text-main);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .prompt-sub {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+
+    /* Footer */
+    .app-footer {
+      border-top: 1px solid var(--border-subtle);
+      background: #ffffff;
+      padding: 1.25rem 1.5rem;
+      font-size: 0.78125rem;
+      color: var(--text-secondary);
+      margin-top: auto;
+    }
+
+    .footer-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       TOP HEADER (Strict 3-Zone Contract)
+       ======================================================================== -->
+  <header class="top-header">
+    <div class="top-header-inner">
+      <!-- Zone 1: Wordmark -->
+      <a href="#" class="brand-wordmark" id="brand-link">
+        <span class="brand-logo-badge">G</span>
+        <span>The Ultimate Google <span class="brand-accent">Algorithm Update Simulator</span></span>
+      </a>
+
+      <!-- Zone 2: Navigation Links (4 Historical Chapters) -->
+      <nav class="header-nav" aria-label="Chronological Chapters">
+        <button class="chapter-tab-btn active-chapter" id="chap-btn-1" onclick="switchChapter(1)">1. Spam & Infra (2003–07)</button>
+        <button class="chapter-tab-btn" id="chap-btn-2" onclick="switchChapter(2)">2. Brands & Quality (2009–12)</button>
+        <button class="chapter-tab-btn" id="chap-btn-3" onclick="switchChapter(3)">3. Semantics & Mobile (2013–16)</button>
+        <button class="chapter-tab-btn" id="chap-btn-4" onclick="switchChapter(4)">4. AI, UX & E-E-A-T (2018–24)</button>
+      </nav>
+
+      <!-- Zone 3: Primary Action & Stepper Controls -->
+      <div class="header-actions">
+        <button class="stepper-btn" id="prev-step-btn" onclick="stepUpdate(-1)" title="Go to previous chronological update">
+          <span>&#9664; Prev</span>
+        </button>
+        <button class="stepper-btn" id="next-step-btn" onclick="stepUpdate(1)" title="Go to next chronological update">
+          <span>Next &#9654;</span>
+        </button>
+        <button class="btn-secondary" onclick="resetToBaseline()" title="Reset current update to baseline">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       SUB-BANNER: CLASSROOM CONTEXT STRIP
+       ======================================================================== -->
+  <aside class="classroom-strip">
+    <div class="classroom-strip-inner">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span class="pedagogy-chip">16 LANDMARK MILESTONES</span>
+        <span>Interactive university laboratory covering the complete 21-year algorithmic history of Google search.</span>
+      </div>
+      <div class="classroom-stats">
+        <div><span class="stat-label">Milestone: </span><span class="stat-val" id="meta-engine-tag">1 / 16 · Florida (2003)</span></div>
+        <div><span class="stat-label">Index Status: </span><span class="stat-val" id="meta-status-tag">Pre-Update Baseline</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       MAIN APPLICATION VIEWPORT
+       ======================================================================== -->
+  <main class="app-viewport">
+    <div class="grid-container">
+
+      <!-- ====================================================================
+           LEFT PANEL: CONTROL CENTER & TIMELINE STATE MACHINE
+           ==================================================================== -->
+      <section class="control-column" aria-label="Simulator Controls">
+
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Algorithm Timeline & Variable Configuration</h2>
+              <div class="panel-subtitle">Select any of the 16 updates, configure variables, and run</div>
+            </div>
+            <span class="pedagogy-chip" id="era-counter-badge">1 of 16</span>
+          </div>
+
+          <div class="panel-body">
+
+            <!-- 1. Quick Select Dropdown for all 16 Updates -->
+            <div class="timeline-quick-select-row">
+              <label class="quick-select-label" for="all-updates-select">
+                <span>Select Algorithm Milestone (2003 &ndash; 2024)</span>
+                <span class="pedagogy-chip" id="chapter-label-pill">CHAPTER 1</span>
+              </label>
+              <select class="timeline-select" id="all-updates-select" onchange="jumpToUpdate(this.value)">
+                <!-- Dynamically populated via JS -->
+              </select>
+            </div>
+
+            <!-- 2. Chapter Grid Pill Buttons (Active Chapter's 4 Updates) -->
+            <div class="chapter-items-grid" id="chapter-pills-container">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- 3. Historical Era Briefing Card -->
+            <div class="era-briefing" id="era-briefing-box">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- 4. Universal Variable Dropdown -->
+            <div class="field-group">
+              <label class="field-label" for="era-config-select">
+                <span id="config-dropdown-label">Simulated Tactic / Query Type</span>
+                <span class="pedagogy-chip" id="dropdown-status-chip">SELECT VARIABLE</span>
+              </label>
+              <div class="custom-select-wrapper">
+                <select class="config-dropdown" id="era-config-select" onchange="handleDropdownChange(this.value)">
+                  <!-- Dynamically populated via JS -->
+                </select>
+                <svg class="select-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <!-- 5. Action Controls -->
+            <div class="execution-block">
+              <button class="btn-primary" id="btn-execute" onclick="executeGoogleUpdate()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Execute Google Update</span>
+              </button>
+              <button class="btn-revert" id="btn-revert" onclick="revertToPreUpdate()">
+                Revert to Pre-Update Ranking (Compare Diff)
+              </button>
+
+              <div class="status-pill-strip">
+                <span>EXECUTION ENGINE</span>
+                <span id="execution-pill" style="font-weight:700; color:var(--text-secondary);">BASELINE SERP LOADED</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Educational Analysis Card -->
+        <article class="education-box" aria-live="polite">
+          <div class="edu-header">
+            <div class="edu-header-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--google-blue)"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <span>Algorithmic History & Classroom Lesson</span>
+            </div>
+            <span class="pedagogy-chip" id="edu-chip">DEEP DIVE</span>
+          </div>
+
+          <div class="edu-content" id="edu-content-area">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ====================================================================
+           RIGHT PANEL: LIVE REACTIVE MOCK SERP
+           ==================================================================== -->
+      <section class="serp-column" aria-label="Search Engine Results Page">
+
+        <div class="serp-container-card">
+          <!-- Authentic Search Header Bar -->
+          <div class="serp-searchbar-header">
+            <div class="serp-logo-search-row">
+              <div class="serp-google-logo" aria-label="Google">
+                <span class="logo-g1">G</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span><span class="logo-l">l</span><span class="logo-e">e</span>
+              </div>
+              <div class="serp-search-input-box">
+                <input type="text" id="serp-query-input" class="serp-fake-input" readonly value="discount digital cameras" />
+                <svg class="serp-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- SERP Meta Count & Engine Tag -->
+          <div class="serp-meta-status-bar">
+            <div class="serp-count-text" id="serp-stats-text">
+              Results 1 - 5 of about 1,420,000 for <strong id="serp-query-label">"discount digital cameras"</strong> (0.18 seconds)
+            </div>
+            <div class="serp-engine-badge" id="serp-state-badge">
+              <span>Filter State:</span>
+              <strong id="filter-state-name" style="color:var(--text-secondary)">Unfiltered Early Index</strong>
+            </div>
+          </div>
+
+          <!-- SERP Result Cards List -->
+          <div class="serp-results-list" id="serp-results-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- Seminar Discussion Prompts -->
+        <div class="classroom-footer-card" id="discussion-section">
+          <div class="classroom-footer-header">
+            <div class="discussion-prompt-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--google-yellow)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Classroom Discussion Prompts for Seminar Reflection</span>
+            </div>
+          </div>
+
+          <div class="discussion-grid" id="discussion-prompts-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>The Ultimate Google Algorithm Update Simulator</strong> &mdash; 16 Landmark Updates (2003&ndash;2024). University Information Science & Marketing Curriculum.
+      </div>
+      <div>
+        <span>Vanilla JS &bull; No Frameworks &bull; GitHub Pages Ready</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       OPERATIONAL VANILLA JAVASCRIPT STATE MACHINE & ENGINE (ALL 16 UPDATES)
+       ======================================================================== -->
+  <script>
+    /* ==========================================================================
+       THE 16 CANONICAL ALGORITHM UPDATES DATABASE
+       ========================================================================== */
+    const ALL_UPDATES = [
+      // ------------------------------------------------------------------------
+      // 1. FLORIDA (NOVEMBER 2003) — THE WAR ON SPAM
+      // ------------------------------------------------------------------------
+      {
+        id: "florida",
+        chapter: 1,
+        index: 1,
+        name: "Florida Update",
+        year: "Nov 2003",
+        subtitle: "The War on Spam & Early Mechanical Filters",
+        query: "discount digital cameras",
+        dropdownLabel: "Webmaster Content & Linking Strategy",
+        dropdownOptions: [
+          { value: "stuffing", label: "Keyword Stuffing & Hidden White Text" },
+          { value: "farms", label: "Reciprocal Link Farms" },
+          { value: "ethical", label: "Ethical Copywriting" }
+        ],
+        briefing: {
+          title: "The Battle Against Keyword Density & Artificial Webrings",
+          summary: "In late 2003, early SEO relied on mechanical manipulation: repeating target keywords dozens of times in invisible font colors, stuffing HTML comments, and using circular link rings.",
+          quote: "“Webmasters across WebmasterWorld awoke to find top rankings pulverized overnight right before the holiday shopping rush.”"
+        },
+        baseline: [
+          { id: "f1", title: "Discount Digital Cameras - Cheap Cameras Wholesale Deals 2003", url: "http://www.cameradeals-affiliatenetwork.biz/cameras", snippet: "Looking for <em>discount digital cameras</em>? We have <em>discount digital cameras</em>, cheap <em>digital cameras</em>, best <em>discount digital cameras</em> wholesale online! Click now for low prices.", type: "spam", signals: { density: "18.4% (Critical)", backlinks: "14,200", wordCount: "210 words" } },
+          { id: "f2", title: "Free Digital Camera Deals & Megapixel Optics Exchange Ring", url: "http://www.freelinkmatrix-opticsexchange.net/portal/cameras.html", snippet: "Directory of <em>discount digital cameras</em>. Reciprocal webring partner site with 8,500 optics portals. Find cheap Canon, Sony, and Nikon <em>digital cameras</em> wholesale.", type: "link_farm", signals: { density: "9.2%", backlinks: "54,000 (Ring circular)", wordCount: "420 words" } },
+          { id: "f3", title: "Bob's Camera Warehouse - Family Owned Since 1984 - Discount Models", url: "http://www.bobsdiscountcamwarehouse.com/catalog", snippet: "Genuine USA warranty <em>discount digital cameras</em> in stock. Olympus, Minolta, Kodak, and Nikon. View our Thanksgiving holiday specials on all 3.2 megapixel kits.", type: "mom_pop", signals: { density: "7.1% (Borderline)", backlinks: "1,850", wordCount: "1,450 words" } },
+          { id: "f4", title: "Digital Photography Review - Comprehensive Camera Buying Guide & Reviews", url: "http://www.digitalphotographyreview.org/buying-guides/2003-digital-cameras", snippet: "In-depth reviews and side-by-side studio comparisons for 2003 <em>digital cameras</em>. Laboratory image noise tests, dynamic range benchmarks, sample galleries, and pricing analysis.", type: "authority", signals: { density: "2.3% (Natural)", backlinks: "12,900 (Editorial)", wordCount: "3,800 words" } },
+          { id: "f5", title: "Consumer Digital Imaging Lab - University Optics Research Group", url: "http://www.consumertechjournal.edu/imaging/camera-evaluations", snippet: "Academic evaluation of consumer CCD sensor fidelity and compression algorithms. Recommended reference resource for consumer photography and digital camera purchases.", type: "academic", signals: { density: "1.1%", backlinks: "4,200 (University .edu)", wordCount: "5,100 words" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "stuffing" || opt === "farms") {
+            items.forEach(it => {
+              if (it.type === "spam" || it.type === "link_farm") {
+                it.badge = "[PENALIZED]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Harsh Red Penalty: Over-optimization filter flagged unnatural keyword density & circular link rings."; it.annotationClass = "annotation-red";
+                it.sortOrder = 99; it.delta = "▼ -4"; it.deltaClass = "delta-down";
+              } else if (it.type === "mom_pop") {
+                it.badge = "[FALSE POSITIVE]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Collateral Damage: Honest merchant de-indexed because product spec catalog tripped stemming threshold."; it.annotationClass = "annotation-red";
+                it.sortOrder = 90; it.delta = "▼ -1"; it.deltaClass = "delta-down";
+              } else if (it.type === "authority") {
+                it.badge = "[AUTHORITY REWARD]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 1; it.delta = "▲ +3"; it.deltaClass = "delta-up";
+              } else {
+                it.badge = "[ORGANIC AUTHORITY]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +3"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "authority") { it.badge = "[AUTHORITY REWARD]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = 1; it.delta = "▲ +3"; it.deltaClass = "delta-up"; }
+              else if (it.type === "academic") { it.badge = "[ORGANIC AUTHORITY]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = 2; it.delta = "▲ +3"; it.deltaClass = "delta-up"; }
+              else if (it.type === "spam" || it.type === "link_farm") { it.badge = "[PENALIZED]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red"; it.sortOrder = 90; it.delta = "▼ -3"; it.deltaClass = "delta-down"; }
+              else { it.badge = "[ORGANIC RANK]"; it.badgeClass = "badge-organic"; it.sortOrder = 3; it.delta = "— 0"; it.deltaClass = "delta-neutral"; }
+            });
+          }
+        },
+        lesson: "Florida introduced n-gram frequency thresholds and query-dependent stemming filters. Honest mom-and-pop retailers (e.g. Bob's Camera Warehouse) were collateral damage before Thanksgiving 2003, establishing the concept of algorithmic false positives.",
+        prompts: [
+          { topic: "The Florida Fallout", question: "Can algorithmic fairness avoid collateral damage?", note: "When Google banned over-optimized sites right before Thanksgiving 2003, hundreds of legitimate small businesses went under. Should algorithmic penalties be gradual or binary?" }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 2. BIGDADDY (DECEMBER 2005 - MARCH 2006) — CRAWL & CANONICAL INFRASTRUCTURE
+      // ------------------------------------------------------------------------
+      {
+        id: "bigdaddy",
+        chapter: 1,
+        index: 2,
+        name: "BigDaddy Update",
+        year: "2005 - 2006",
+        subtitle: "Crawl Architecture & Canonicalization",
+        query: "cheap flights new york to london",
+        dropdownLabel: "URL Architecture & Session Parameter Structure",
+        dropdownOptions: [
+          { value: "duplicate_urls", label: "Duplicate URL Session IDs & Parameter Bloat" },
+          { value: "clean_canonical", label: "Clean Canonical Structure (Single URL, 301 Redirects)" }
+        ],
+        briefing: {
+          title: "The Overhaul of Google’s Crawling & Indexing Infrastructure",
+          summary: "BigDaddy was a multi-month server architecture migration led by Matt Cutts. It upgraded how Google handled 301 vs 302 redirects, canonical URLs, and filtered out infinite crawl traps caused by session IDs.",
+          quote: "“BigDaddy overhauled how Google fundamentally crawls, resolves duplicate URLs, and trusts redirected link equity.”"
+        },
+        baseline: [
+          { id: "bd1", title: "Cheap Flights NYC to London - Deals ?session_id=8912&aff=42", url: "http://www.cheapfares-matrix.biz/book.php?session_id=8912&origin=NYC&dest=LON", snippet: "Compare <em>cheap flights new york to london</em>. Low airfares, airline tickets, and discount flights with dynamic session tokens.", type: "param_bloat", signals: { duplicateURLs: "4,200 indexed clones", redirectType: "302 temporary loop", crawlWaste: "Severe" } },
+          { id: "bd2", title: "Cheap Flights NYC to London - Deals ?session_id=4491&aff=11", url: "http://www.cheapfares-matrix.biz/book.php?session_id=4491&origin=NYC&dest=LON", snippet: "Identical duplicate clone with different session cookie parameter. <em>Cheap flights new york to london</em> booking engine.", type: "param_bloat", signals: { duplicateURLs: "Clone of #1", redirectType: "None", crawlWaste: "Severe" } },
+          { id: "bd3", title: "British Airways Official - Nonstop Flights New York (JFK) to London (LHR)", url: "http://www.britishairways.com/flights/nyc-to-london", snippet: "Book direct flights from New York to London Heathrow. World Traveller economy and Club World business class fares with clean canonical URLs.", type: "canonical_clean", signals: { duplicateURLs: "1 canonical URL", redirectType: "Permanent 301", crawlWaste: "Zero" } },
+          { id: "bd4", title: "Kayak.com - Compare New York to London Airfares", url: "http://www.kayak.com/flights/NYC-LON", snippet: "Find cheap flights from New York to London. Compare hundreds of airlines and travel sites simultaneously.", type: "canonical_clean", signals: { duplicateURLs: "Consolidated", redirectType: "Clean", crawlWaste: "Minimal" } },
+          { id: "bd5", title: "Travel Blog: 10 Tips for Booking Cheap Transatlantic Flights", url: "http://www.nomadicflier.net/guides/transatlantic-flight-tips", snippet: "When to buy tickets, off-peak travel seasons, and how to avoid hidden baggage fees on transatlantic flights.", type: "editorial", signals: { duplicateURLs: "Clean", redirectType: "Standard", crawlWaste: "Zero" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "duplicate_urls") {
+            items.forEach(it => {
+              if (it.type === "param_bloat") {
+                it.badge = "[CRAWL CONSOLIDATION]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin";
+                it.annotation = "BigDaddy Filter: Session parameter bloat and 302 redirect loops stripped from the index."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "bd3") {
+                it.badge = "[CANONICAL #1]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "bd4") {
+                it.badge = "[CLEAN INFRASTRUCTURE]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "canonical_clean") { it.badge = "[CLEAN CANONICAL]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "bd3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[DE-DUPLICATED]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "BigDaddy laid the technical foundation for the canonical tag (`rel=canonical`, released in 2009). It taught webmasters that technical server infrastructure, proper 301 redirects, and clean URL parameter handling directly dictate indexation.",
+        prompts: [
+          { topic: "Crawl Budget Waste", question: "Why do duplicate URLs harm search engine crawlers?", note: "When search bots waste resources indexing infinite session-parameter URLs, they fail to discover high-value new content." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 3. UNIVERSAL SEARCH (MAY 2007) — BLENDED MULTIMEDIA SERP
+      // ------------------------------------------------------------------------
+      {
+        id: "universal",
+        chapter: 1,
+        index: 3,
+        name: "Universal Search",
+        year: "May 2007",
+        subtitle: "The Blended Multimedia SERP",
+        query: "how to play chess opening strategy",
+        dropdownLabel: "SERP Integration Mode",
+        dropdownOptions: [
+          { value: "blended_media", label: "Blended Universal Search (Video, Images & Interactive Snippets)" },
+          { value: "traditional_text", label: "Traditional 10 Plain Blue Text Links Only" }
+        ],
+        briefing: {
+          title: "Breaking the '10 Blue Links' Monolith",
+          summary: "In May 2007, Marissa Mayer unveiled Universal Search, blending Google Video/YouTube, Google Images, Google News, and Maps directly into traditional web results instead of keeping them in separate vertical silos.",
+          quote: "“Universal Search was the most significant architectural change to Google’s search results since PageRank.”"
+        },
+        baseline: [
+          { id: "u1", title: "Chess Openings Tutorial: 10 Standard Pawn Formations in HTML", url: "http://www.chessopenings-plaintext.org/rules/openings.html", snippet: "Read the rules of chess openings in text. The Sicilian Defense, French Defense, and Ruy Lopez explained in standard paragraphs.", type: "text_only", signals: { mediaType: "Plain Text HTML", richSnippet: "None", userEngagement: "Moderate" } },
+          { id: "u2", title: "Complete Chess Strategy Text Archive - Grandmaster Notes", url: "http://www.tacticschess-archive.net/master-strategies.html", snippet: "Explanatory essay on controlling the center board and developing knights before bishops.", type: "text_only", signals: { mediaType: "Text only", richSnippet: "None", userEngagement: "Standard" } },
+          { id: "u3", title: "Master Chess Opening Strategies Explained (15-Minute Video Tutorial)", url: "http://www.youtube.com/watch?v=chessOpenings101", snippet: "Watch Grandmaster breakdown of opening tactics with live board demonstrations, visual moves, and tactical traps. Video runtime: 14:22.", type: "video_rich", signals: { mediaType: "YouTube Video / Media", richSnippet: "Video Thumbnail", userEngagement: "High" } },
+          { id: "u4", title: "Visual Chess Opening Reference Charts & Move Diagrams", url: "http://www.chessdiagrams-images.com/opening-trees", snippet: "High-resolution diagram pack showing standard piece development trees and opening win rates.", type: "image_pack", signals: { mediaType: "Image Pack", richSnippet: "Visual Charts", userEngagement: "High" } },
+          { id: "u5", title: "US Chess Federation: Official Tournament Regulations", url: "http://www.uschess.org/official-regulations", snippet: "Official tournament time controls, touch-move rule, and scorekeeping standards.", type: "text_only", signals: { mediaType: "Text only", richSnippet: "None", userEngagement: "Reference" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "blended_media") {
+            items.forEach(it => {
+              if (it.id === "u3") {
+                it.badge = "[UNIVERSAL VIDEO BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.snippet = `<span class="blended-media-badge">&#9658; VIDEO BLENDED</span> ` + it.snippet;
+                it.annotation = "Universal Blended Result: Video tutorial embedded at position #1 with rich thumbnail and duration metadata."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "u4") {
+                it.badge = "[IMAGE PACK BLEND]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Universal Image Pack: Visual diagrams injected directly into top 3."; it.annotationClass = "annotation-green";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "u1") {
+                it.badge = "[DISPLACED TEXT]"; it.badgeClass = "badge-organic";
+                it.annotation = "Plain text link displaced beneath rich media blocks."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 3; it.delta = "▼ -2"; it.deltaClass = "delta-down";
+              } else {
+                it.badge = "[ORGANIC TEXT]"; it.badgeClass = "badge-organic"; it.sortOrder = it.id === "u2" ? 4 : 5; it.delta = "— 0"; it.deltaClass = "delta-neutral";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              it.badge = "[TRADITIONAL LINK]"; it.badgeClass = "badge-organic"; it.cardClass = ""; it.sortOrder = it.id === "u1" ? 1 : (it.id === "u2" ? 2 : 3); it.delta = "— 0"; it.deltaClass = "delta-neutral";
+            });
+          }
+        },
+        lesson: "Universal Search ended the era of monolithic '10 blue text links'. It forced SEO into multimedia optimization (Video SEO, Image SEO, News SEO), recognizing that users consume information through visual and audio formats.",
+        prompts: [
+          { topic: "The Death of 10 Blue Links", question: "How did multimedia blending alter organic click-through rates?", note: "Eye-tracking studies proved that video thumbnails and image carousels captured 70% of user visual attention." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 4. VINCE UPDATE (FEBRUARY 2009) — THE BRAND SHIFT
+      // ------------------------------------------------------------------------
+      {
+        id: "vince",
+        chapter: 2,
+        index: 4,
+        name: "Vince Update",
+        year: "Feb 2009",
+        subtitle: "The Brand Shift & Entity Trust Signals",
+        query: "Shoes",
+        dropdownLabel: "Search Query Intent Type",
+        dropdownOptions: [
+          { value: "broad", label: "Broad Commercial Keyword ('Shoes')" },
+          { value: "longtail", label: "Highly Specific Long-Tail Query ('blue trail running shoes size 10')" }
+        ],
+        briefing: {
+          title: "From Raw Webpage Strings to Real-World Corporate Brands",
+          summary: "In 2009, Google began favoring recognized corporate brand domains on broad commercial head queries, reflecting Eric Schmidt's philosophy that 'brands sort out the cesspool'.",
+          quote: "“Brand affinity is hard-wired. Brands are how you sort out the cesspool.” — Eric Schmidt, Google CEO"
+        },
+        baseline: [
+          { id: "v1", title: "Best Shoes Guide 2009: 5,000-Word Comprehensive Footwear Breakdown", url: "http://www.best-shoes-guide.com/top-rated-footwear", snippet: "The ultimate 2009 review of <em>shoes</em>. We tested 65 pairs for arch support, pronation control, and durability. Comparison charts and runner ratings.", type: "affiliate", signals: { wordCount: "4,850 words", keywordDensity: "5.4%", brandSearchVolume: "Almost None" } },
+          { id: "v2", title: "Marathon Gear Reviewer - Unbiased Athletic Shoes Testing", url: "http://www.marathongearreviewer.net/shoes-breakdown", snippet: "Honest runner reviews for athletic <em>shoes</em>. Complete breakdown of cushioning technology and road endurance from veteran marathon coaches.", type: "affiliate", signals: { wordCount: "3,200 words", keywordDensity: "4.8%", brandSearchVolume: "Low niche" } },
+          { id: "v3", title: "Nike Official Site - Men's, Women's, and Kids' Shoes & Apparel", url: "http://www.nike.com/shoes", snippet: "Shop the official collection of Nike <em>shoes</em>. Explore running, basketball, lifestyle, and training models with free member shipping.", type: "brand", signals: { wordCount: "190 words", keywordDensity: "1.2%", brandSearchVolume: "Millions/month" } },
+          { id: "v4", title: "Shoes for Men, Women & Kids | Free Shipping & 365-Day Returns at Zappos", url: "http://www.zappos.com/shoes", snippet: "Massive selection of <em>shoes</em> from top brands like Asics, Brooks, Saucony, and New Balance. 365-day return policy and 24/7 customer service.", type: "brand", signals: { wordCount: "340 words", keywordDensity: "2.1%", brandSearchVolume: "Massive Brand Entity" } },
+          { id: "v5", title: "Local Shoe Outlet - Regional Athletic Footwear Clearance", url: "http://www.localshoeoutlet.biz/inventory", snippet: "Discounted previous season athletic <em>shoes</em> and footwear. In-store pickup available at regional distribution centers.", type: "local", signals: { wordCount: "820 words", keywordDensity: "3.9%", brandSearchVolume: "Negligible" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "broad") {
+            items.forEach(it => {
+              if (it.id === "v3") {
+                it.badge = "[BRAND BOOST]"; it.badgeClass = "badge-brand-boost"; it.cardClass = "state-brand-boost";
+                it.annotation = "Blue Brand Boost: Elevated to #1 based on national trademark query volume and entity confidence."; it.annotationClass = "annotation-blue";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "v4") {
+                it.badge = "[BRAND BOOST]"; it.badgeClass = "badge-brand-boost"; it.cardClass = "state-brand-boost";
+                it.annotation = "Established Retail Entity: Trusted consumer protection signals elevate domain to #2."; it.annotationClass = "annotation-blue";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "affiliate") {
+                it.badge = "[DISPLACED]"; it.badgeClass = "badge-organic";
+                it.annotation = "Affiliate Displaced: 4,850-word blog demoted beneath corporate brand entities."; it.annotationClass = "annotation-faded";
+                it.sortOrder = it.id === "v1" ? 3 : 4; it.delta = "▼ -2"; it.deltaClass = "delta-down";
+              } else {
+                it.badge = "[ORGANIC RANK]"; it.badgeClass = "badge-organic"; it.sortOrder = 5; it.delta = "— 0"; it.deltaClass = "delta-neutral";
+              }
+            });
+          } else {
+            // Long tail intent match
+            items.forEach(it => {
+              if (it.id === "v1") {
+                it.badge = "[INTENT MATCH]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Long-Tail Preservation: Granular field specs satisfy descriptive intent better than generic brand homepages."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "★ REMAINS #1"; it.deltaClass = "delta-up";
+              } else {
+                it.badge = "[ORGANIC RANK]"; it.badgeClass = "badge-organic"; it.sortOrder = it.id === "v2" ? 2 : (it.id === "v3" ? 3 : 4); it.delta = "— 0"; it.deltaClass = "delta-neutral";
+              }
+            });
+          }
+        },
+        lesson: "Vince established that on-page text length is not a proxy for user satisfaction. For broad commercial terms, Google substituted keyword counting with corporate entity trust.",
+        prompts: [
+          { topic: "The Corporate Bias Paradox", question: "Did Vince unfairly favor monopolies over grassroots webmasters?", note: "Consumers searching 'shoes' want to buy from accountable retailers with return policies, not read affiliate essays." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 5. CAFFEINE UPDATE (JUNE 2010) — FRESHNESS & REAL-TIME INDEXING
+      // ------------------------------------------------------------------------
+      {
+        id: "caffeine",
+        chapter: 2,
+        index: 5,
+        name: "Caffeine Update",
+        year: "June 2010",
+        subtitle: "Real-Time Streaming Indexation",
+        query: "breaking earthquake epicenter magnitude news",
+        dropdownLabel: "Content Freshness & Ingestion Speed",
+        dropdownOptions: [
+          { value: "streaming_fresh", label: "Real-Time Live Blog (Indexed Seconds Ago)" },
+          { value: "stale_batch", label: "Stale Static Evergreen Page (Indexed 3 Weeks Ago)" }
+        ],
+        briefing: {
+          title: "Continuous Crawling Replaces the 'Google Dance'",
+          summary: "Caffeine rebuilt Google’s underlying indexing architecture from the ground up, switching from batch MapReduce passes to a continuous per-second streaming index that expanded the web index by 50x.",
+          quote: "“Caffeine lets us crawl and index on a global scale at unprecedented speeds, making fresh web content instantly discoverable.”"
+        },
+        baseline: [
+          { id: "c1", title: "Comprehensive Geological Guide to Earthquake Tectonic Fault Lines", url: "http://www.earthsciences-encyclopedia.org/fault-lines", snippet: "Static encyclopedic reference on tectonic plates, Richter scales, and seismograph mechanics. Last cached: 24 days ago.", type: "static_stale", signals: { indexAge: "24 days old", updateLatency: "Batch cycle", freshnessScore: "Low" } },
+          { id: "c2", title: "Historical Earthquakes in the Pacific Ring of Fire Archive", url: "http://www.geologyhistory-archive.net/ring-of-fire", snippet: "Historical retrospective of major seismic events of the 20th century. Cached last month.", type: "static_stale", signals: { indexAge: "31 days old", updateLatency: "Batch cycle", freshnessScore: "Low" } },
+          { id: "c3", title: "USGS Live Seismograph Feed: M6.4 Epicenter Detected 3 Minutes Ago", url: "http://www.usgs.gov/earthquakes/live/event-m64-alert", snippet: "LIVE ALERT: 6.4 magnitude earthquake confirmed at 14:02 UTC. Depth 10km. Real-time updates, aftershock probability, and shaking intensity maps.", type: "realtime_fresh", signals: { indexAge: "4 minutes ago", updateLatency: "Streaming (Caffeine)", freshnessScore: "Maximum (1.0)" } },
+          { id: "c4", title: "Associated Press Breaking News Wire: Live Evacuation Alerts", url: "http://www.apnews.com/breaking/earthquake-live-feed", snippet: "Live coverage from regional authorities. Emergency response teams mobilized. Shaking felt across 300 miles.", type: "realtime_fresh", signals: { indexAge: "7 minutes ago", updateLatency: "Streaming", freshnessScore: "High (0.95)" } },
+          { id: "c5", title: "Emergency Earthquake Preparedness Checklist", url: "http://www.ready-emergency.gov/plan/earthquake", snippet: "Family emergency kit checklist, water storage guidelines, and drop-cover-hold-on drill instructions.", type: "static_stale", signals: { indexAge: "18 days old", updateLatency: "Standard", freshnessScore: "Moderate" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "streaming_fresh") {
+            items.forEach(it => {
+              if (it.id === "c3") {
+                it.badge = "[CAFFEINE FRESHNESS BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Continuous Streaming Index: Discovered, parsed, and ranked 4 minutes after occurrence."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "c4") {
+                it.badge = "[REAL-TIME WIRE BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "static_stale") {
+                it.badge = "[STALE CONTENT DISPLACED]"; it.badgeClass = "badge-organic";
+                it.annotation = "Evergreen page displaced during high-velocity breaking news events."; it.annotationClass = "annotation-faded";
+                it.sortOrder = it.id === "c1" ? 3 : (it.id === "c2" ? 4 : 5); it.delta = "▼ -2"; it.deltaClass = "delta-down";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              it.badge = "[STATIC CACHE]"; it.badgeClass = "badge-organic"; it.cardClass = ""; it.sortOrder = it.id === "c1" ? 1 : (it.id === "c2" ? 2 : 3); it.delta = "— 0"; it.deltaClass = "delta-neutral";
+            });
+          }
+        },
+        lesson: "Caffeine was not a simple ranking filter—it was a total database infrastructure revolution that allowed Google to index Twitter, breaking news, and blog posts within seconds of publication.",
+        prompts: [
+          { topic: "The Freshness Heuristic (QDF)", question: "How does Google know when a query demands fresh content?", note: "Google detects sudden spikes in search volume ('Query Deserved Freshness') and temporarily boosts newly published pages." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 6. PANDA UPDATE (FEBRUARY 2011) — THE QUALITY CRUSADE
+      // ------------------------------------------------------------------------
+      {
+        id: "panda",
+        chapter: 2,
+        index: 6,
+        name: "Panda Update",
+        year: "Feb 2011",
+        subtitle: "The Quality Crusade & War on Content Farms",
+        query: "how to treat a sprained ankle at home",
+        dropdownLabel: "Content Quality & Production Model",
+        dropdownOptions: [
+          { value: "thin_scraper", label: "Thin Affiliate Content / Ad-Heavy Scraper Site" },
+          { value: "deep_editorial", label: "Deep, Unique Content" }
+        ],
+        briefing: {
+          title: "Eliminating Shallow Content Farms & Ad-Bloated Rehashes",
+          summary: "Content farms like Demand Media (eHow) mass-produced millions of shallow 200-word articles for search ad revenue. Panda evaluated sitewide quality, ad-to-content ratio, and original research.",
+          quote: "“Would you trust the information presented in this article with your credit card or your child’s health?” — Amit Singhal, Google Fellow"
+        },
+        baseline: [
+          { id: "p1", title: "How to Treat a Sprained Ankle: 3 Easy Steps (With Photos)", url: "http://www.ehowanswers-contentfarm.com/sprained-ankle-steps", snippet: "Step 1: Sit down. Step 2: Put ice on your ankle. Step 3: Wait. Learn the quickest tricks for <em>treating a sprained ankle at home</em> with our sponsored ads.", type: "farm", signals: { wordCount: "185 words (Thin)", adBanners: "9 display ads", duplicateScore: "68% scraped" } },
+          { id: "p2", title: "Sprained Ankle Treatment Tips & Quick Home Remedies Directory", url: "http://www.scraperhealtharticles-hub.biz/ankle-remedies", snippet: "Ankle sprains occur when ligaments stretch. Buy affiliate ankle braces and discount pain relief gel now to cure your sprained ankle.", type: "farm", signals: { wordCount: "220 words", adBanners: "12 affiliate popups", duplicateScore: "84% syndicated" } },
+          { id: "p3", title: "Sprained Ankle Diagnosis, R.I.C.E. Protocol, and Rehab Exercises", url: "http://www.dailyhealthmayoeditorial.org/orthopedics/sprained-ankle-guide", snippet: "Comprehensive clinical breakdown of grade I, II, and III ligament sprains. When to seek immediate X-rays, step-by-step compression wrapping diagrams, and safe weight-bearing timelines.", type: "deep", signals: { wordCount: "2,950 words", adBanners: "0 disruptive ads", duplicateScore: "0% original" } },
+          { id: "p4", title: "Orthopedic Physical Therapy: Ankle Inversion Injury Recovery Protocol", url: "http://www.sportsinjuryclinic-doctor.com/rehabilitation/ankle-inversion", snippet: "Physical therapy guidelines from certified athletic trainers. Proprioceptive board drills, tendon strengthening progressions, and prevention of chronic ankle instability.", type: "deep", signals: { wordCount: "3,400 words", adBanners: "1 subtle sidebar", duplicateScore: "0% original" } },
+          { id: "p5", title: "Fast Ankle Healer: Home Remedies in Under 2 Minutes", url: "http://www.quicktipspedia.net/fast-ankle-heal", snippet: "Wrap your foot and rest. Read 5 user comments on how they cured ankle sprains in 24 hours.", type: "farm", signals: { wordCount: "140 words", adBanners: "7 ads", duplicateScore: "72% rephrased" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "thin_scraper") {
+            items.forEach(it => {
+              if (it.type === "farm") {
+                it.badge = "[THIN CONTENT FILTER]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin";
+                it.annotation = "Panda Demotion: Low word count, high ad-to-content ratio, and short 12-second dwell times triggered sitewide quality penalty."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "p3") {
+                it.badge = "[EDITORIAL QUALITY BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Quality Scaled Up: 2,950 words of medically verified original diagrams jump to #1."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "p4") {
+                it.badge = "[EXPERT DEPTH]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "deep") { it.badge = "[EDITORIAL QUALITY BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "p3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[THIN CONTENT FILTER]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Panda demonstrated that churning out thousands of shallow pages harms an entire domain. Google prioritizes comprehensive, original content with clean ad-to-content ratios.",
+        prompts: [
+          { topic: "The Fall of Demand Media", question: "How did a single algorithm update destroy a $1.5B public company?", note: "Demand Media lost 40% of search traffic in one week because its business model depended on formulaic low-cost articles." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 7. PENGUIN UPDATE (APRIL 2012) — THE BACKLINK CLEANSE
+      // ------------------------------------------------------------------------
+      {
+        id: "penguin",
+        chapter: 2,
+        index: 7,
+        name: "Penguin Update",
+        year: "April 2012",
+        subtitle: "The Backlink Cleanse & Anti-PBN Enforcement",
+        query: "best personal injury lawyer miami",
+        dropdownLabel: "Inbound Link Profile & Anchor Text Distribution",
+        dropdownOptions: [
+          { value: "paid_pbns", label: "Paid PBN Links & Automated Anchor Text Spam" },
+          { value: "earned_links", label: "Natural Earned Backlinks" }
+        ],
+        briefing: {
+          title: "Neutralizing Automated Link Networks & Unnatural Anchor Text",
+          summary: "While Panda targeted on-page content, Penguin targeted off-page link manipulation. Webmasters using Private Blog Networks (PBNs), automated forum profiles, and 90%+ exact-match anchor text saw their sites wiped out.",
+          quote: "“If you’re buying links or using automated tools to spin thousands of directory links, your site is in Penguin’s crosshairs.” — Matt Cutts, Head of Webspam"
+        },
+        baseline: [
+          { id: "pn1", title: "Best Personal Injury Lawyer Miami - Miami Accident Attorneys", url: "http://www.miamiaccidentclaims-express.com/miami-lawyer", snippet: "Looking for the <em>best personal injury lawyer miami</em>? Our team has recovered millions. Call the premier <em>best personal injury lawyer miami</em> 24/7.", type: "pbn", signals: { exactMatchAnchor: "94.2%", pbnDomains: "1,850 expired blogs", linkVelocity: "+4,500 links/day" } },
+          { id: "pn2", title: "Miami Injury Law Directory - Car Crash Attorneys Coral Gables", url: "http://www.cheapinjurysettlement-directory.net/florida-claims", snippet: "Find the <em>best personal injury lawyer miami</em>. Directory of 400 legal firms with free consultation forms and contingency fee contracts.", type: "pbn", signals: { exactMatchAnchor: "88.6%", pbnDomains: "2,400 forum profile links", linkVelocity: "+8,000 links/week" } },
+          { id: "pn3", title: "The Florida Bar Association: Board-Certified Civil Trial Specialists", url: "http://www.floridabar-certifiedadvocates.org/miami-dade/civil-trial", snippet: "Official directory of board-certified personal injury and civil trial lawyers in Miami-Dade County. Verified disciplinary records, malpractice insurance, and trial experience.", type: "clean_legal", signals: { exactMatchAnchor: "4.1% (Natural)", pbnDomains: "0 PBNs", linkVelocity: "Steady organic" } },
+          { id: "pn4", title: "Ramirez & Levin Law Group: Miami Personal Injury & Maritime Litigation", url: "http://www.coralgables-legalpartners.com/practice-areas/injury", snippet: "Practicing in South Florida for 32 years. Dedicated trial advocates handling catastrophic auto accidents, cruise ship claims, and premises liability.", type: "clean_legal", signals: { exactMatchAnchor: "6.8%", pbnDomains: "0 PBNs", linkVelocity: "Consistent organic" } },
+          { id: "pn5", title: "University of Miami School of Law: Florida Tort Reform & Negligence Law", url: "http://www.nationalconsumerlawguide.edu/tort-symposium/florida-negligence", snippet: "Scholarly overview of comparative fault statutes, contingency fee limitations, and personal injury damage caps in Florida courts.", type: "clean_legal", signals: { exactMatchAnchor: "1.2%", pbnDomains: "0 PBNs", linkVelocity: "Institutional" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "paid_pbns") {
+            items.forEach(it => {
+              if (it.type === "pbn") {
+                it.badge = "[PENGUIN PENALTY]"; it.badgeClass = "badge-penguin-penalty"; it.cardClass = "state-penguin-darkred";
+                it.annotation = "Dark Red Penalty: PBN expired domain network detected. Unnatural 94% exact-match anchor text stripped from top index."; it.annotationClass = "annotation-darkred";
+                it.sortOrder = 95; it.delta = "▼ PULVERIZED"; it.deltaClass = "delta-down";
+              } else if (it.id === "pn3") {
+                it.badge = "[CLEAN LINK PROFILE]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Natural Earned Links: Varied anchor text and institutional legal citations elevated to #1."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "pn4") {
+                it.badge = "[CLEAN LINK PROFILE]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else {
+                it.badge = "[ORGANIC RANK]"; it.badgeClass = "badge-organic"; it.sortOrder = 3; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "clean_legal") { it.badge = "[CLEAN LINK PROFILE]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "pn3" ? 1 : (it.id === "pn4" ? 2 : 3); it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[PENGUIN PENALTY]"; it.badgeClass = "badge-penguin-penalty"; it.cardClass = "state-penguin-darkred"; it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Penguin made link quality supersede raw link quantity. It proved that unnatural anchor text distributions are algorithmic giveaways for purchased link rings.",
+        prompts: [
+          { topic: "The Anchor Text Footprint", question: "Why is natural link variety essential in graph theory?", note: "In a real web graph, people link via brand names, URLs, or generic phrases. 95% commercial exact-match anchors is mathematically unnatural." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 8. PIRATE UPDATE (AUGUST 2012) — DMCA & COPYRIGHT ENFORCEMENT
+      // ------------------------------------------------------------------------
+      {
+        id: "pirate",
+        chapter: 2,
+        index: 8,
+        name: "Pirate Update",
+        year: "Aug 2012",
+        subtitle: "DMCA Enforcement & Copyright Demotions",
+        query: "watch blockbuster movie online free stream full hd",
+        dropdownLabel: "Copyright Compliance & Licensing Status",
+        dropdownOptions: [
+          { value: "dmca_infringing", label: "Copyright-Infringing Torrent & Scraper Site" },
+          { value: "licensed_platform", label: "Licensed Streaming Platform (Netflix / Prime / Hulu)" }
+        ],
+        briefing: {
+          title: "Integrating Intellectual Property Rights into Search Rankings",
+          summary: "In August 2012, Google began factoring valid DMCA copyright removal notices directly into search rankings. Sites with high numbers of copyright takedowns were severely demoted in search results.",
+          quote: "“Sites with high numbers of copyright removal notices now appear much lower in our search results.”"
+        },
+        baseline: [
+          { id: "pi1", title: "Watch Blockbuster Movie Free 1080p Stream - PirateTorrentHub", url: "http://www.piratetorrenthub.to/stream/blockbuster-hd", snippet: "Free instant stream of <em>blockbuster movie</em> online in full HD. Download torrent magnet link and bypass cinema paywalls.", type: "infringing", signals: { dmcaNotices: "48,200 valid takedowns", licenseVerified: "None (Infringing)", legalRisk: "High" } },
+          { id: "pi2", title: "Free Movie Streaming Server Mirror #4 - MegaVideoRip", url: "http://www.megavideorip-leaks.is/watch/movie-full", snippet: "Direct stream link for <em>blockbuster movie</em>. Pop-up free servers with English subtitles.", type: "infringing", signals: { dmcaNotices: "31,400 takedowns", licenseVerified: "None", legalRisk: "High" } },
+          { id: "pi3", title: "Netflix Official: Stream Blockbuster Movie Online in 4K HDR", url: "http://www.netflix.com/title/blockbuster-movie", snippet: "Watch <em>blockbuster movie</em> on Netflix. Official licensed streaming with Dolby Atmos, multi-language subtitles, and offline download support.", type: "licensed", signals: { dmcaNotices: "0 takedowns", licenseVerified: "Official Studio License", legalRisk: "Zero" } },
+          { id: "pi4", title: "Amazon Prime Video: Rent or Buy Blockbuster Movie in Ultra HD", url: "http://www.amazon.com/prime-video/blockbuster-movie", snippet: "Rent or buy <em>blockbuster movie</em> in official 4K Ultra HD. Stream instantly across smart TVs and mobile devices.", type: "licensed", signals: { dmcaNotices: "0 takedowns", licenseVerified: "Official Distributor", legalRisk: "Zero" } },
+          { id: "pi5", title: "Film Review & Box Office Analysis - The Hollywood Reporter", url: "http://www.hollywoodreporter.com/movies/blockbuster-review", snippet: "Critical analysis, director interviews, and opening weekend box office records.", type: "editorial", signals: { dmcaNotices: "0", licenseVerified: "Editorial", legalRisk: "Zero" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "dmca_infringing") {
+            items.forEach(it => {
+              if (it.type === "infringing") {
+                it.badge = "[DMCA COPYRIGHT DEMOTION]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Pirate Update Demotion: Over 48,000 valid studio DMCA takedown requests resulted in algorithmic suppression."; it.annotationClass = "annotation-red";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "pi3") {
+                it.badge = "[LICENSED DISTRIBUTOR]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Studio Verified: Official streaming rights holder elevated to #1."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "pi4") {
+                it.badge = "[LICENSED PLATFORM]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "licensed") { it.badge = "[LICENSED PLATFORM]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "pi3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[DMCA DEMOTION]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "The Pirate Update showed how external legal and regulatory signals (like verified DMCA notices) can be woven directly into algorithmic ranking pipelines to protect consumers from malware and piracy.",
+        prompts: [
+          { topic: "Algorithmic Censorship vs Copyright Protection", question: "Should search engines police legal compliance?", note: "Hollywood studios pressured Google for years before Google established automated demotions based on DMCA volume." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 9. HUMMINGBIRD (SEPTEMBER 2013) — CONVERSATIONAL SEMANTICS
+      // ------------------------------------------------------------------------
+      {
+        id: "hummingbird",
+        chapter: 3,
+        index: 9,
+        name: "Hummingbird",
+        year: "Sept 2013",
+        subtitle: "Conversational Semantic Search",
+        query: "how do I fix a flat shoe sole",
+        dropdownLabel: "Content Optimization Philosophy",
+        dropdownOptions: [
+          { value: "conversational_intent", label: "Natural Conversational Intent Optimization" },
+          { value: "exact_match_tactic", label: "Exact-Match Keyword Tactic" }
+        ],
+        briefing: {
+          title: "Complete Search Engine Rewrite for Conversational Queries",
+          summary: "Hummingbird was Google’s first total engine rewrite since 2001. Rather than matching isolated words, Hummingbird understood full natural language sentences and user intent.",
+          quote: "“Hummingbird pays attention to each word in a query, ensuring that the whole meaning is taken into account rather than particular keywords.”"
+        },
+        baseline: [
+          { id: "h1", title: "Fix a Flat Shoe Sole | How to Fix a Flat Shoe Sole Tutorial", url: "http://www.fix-flat-shoe-sole-guide.info/flat-sole-repair", snippet: "Learn how to <em>fix a flat shoe sole</em>. If you want to <em>fix a flat shoe sole</em>, this page has the exact words to <em>fix a flat shoe sole</em> quickly and cheaply.", type: "literal", signals: { exactTitleMatch: "100%", semanticIntentScore: "0.22", cobblerSteps: "None" } },
+          { id: "h2", title: "Shoe Sole Repairs: Fix Flat Shoe Sole Search Listings", url: "http://www.shoesolerepairs-keywords.biz/flat-sole", snippet: "Online database of keywords for <em>flat shoe sole</em> replacement and rubber glue supplies.", type: "literal", signals: { exactTitleMatch: "92%", semanticIntentScore: "0.18", cobblerSteps: "None" } },
+          { id: "h3", title: "Restoring Separated Boot & Shoe Soles Using Polyurethane Glue and Clamps", url: "http://www.artisancobbler-workshop.org/guides/gluing-separated-soles", snippet: "Step-by-step master cobbler guide on repairing delaminated shoe soles. Preparing rubber surfaces with sandpaper, applying Barge cement or Shoe Goo, and clamp curing times.", type: "semantic", signals: { exactTitleMatch: "0%", semanticIntentScore: "0.96", cobblerSteps: "6 verified steps" } },
+          { id: "h4", title: "Re-attaching Loose Shoe Bottoms: Tested Adhesives Comparison", url: "http://www.diy-footwearfixes-community.net/shoe-adhesives-tested", snippet: "We tested Gorilla Glue, Shoe Goo, and contact cement on peeling running shoe soles. Curing time, flexibility under foot bend, and waterproof performance.", type: "semantic", signals: { exactTitleMatch: "0%", semanticIntentScore: "0.91", cobblerSteps: "Lab tested" } },
+          { id: "h5", title: "Vibram Replacement Rubber Half-Soles & Heels Catalog", url: "http://www.soledistributors-direct.com/replacement-parts", snippet: "Wholesale cobbler supplies: Vibram outsoles, leather heels, nails, and industrial cement.", type: "catalog", signals: { exactTitleMatch: "Low", semanticIntentScore: "0.45", cobblerSteps: "None" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "conversational_intent") {
+            items.forEach(it => {
+              if (it.id === "h3") {
+                it.badge = "[SEMANTIC RELEVANCE BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Hummingbird Semantic Match: Resolves the underlying problem (gluing separated outsoles) despite lacking literal words in title."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "h4") {
+                it.badge = "[SEMANTIC INTENT BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "literal") {
+                it.badge = "[EXACT MATCH BYPASSED]"; it.badgeClass = "badge-organic"; it.cardClass = "state-panda-thin";
+                it.annotation = "Clumsy string matching demoted because it fails to answer conversational problem."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 80; it.delta = "▼ BYPASSED"; it.deltaClass = "delta-down";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "semantic") { it.badge = "[SEMANTIC BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[LITERAL MATCH ONLY]"; it.badgeClass = "badge-organic"; it.sortOrder = 5; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Hummingbird shifted search from 'strings to things'. It enabled Google to parse human conversational queries on mobile phones and voice assistants.",
+        prompts: [
+          { topic: "The Death of Clumsy Titles", question: "Why did webmasters stop writing robotic headlines?", note: "Before Hummingbird, webmasters wrote clumsy titles like 'Car Insurance Boston MA Cheap Best Rate'. Hummingbird rewarded natural, informative English prose." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 10. PIGEON UPDATE (JULY 2014) — THE LOCAL SEARCH REVOLUTION
+      // ------------------------------------------------------------------------
+      {
+        id: "pigeon",
+        chapter: 3,
+        index: 10,
+        name: "Pigeon Update",
+        year: "July 2014",
+        subtitle: "The Local Search & Maps Integration",
+        query: "emergency plumber near me downtown chicago",
+        dropdownLabel: "Local Entity Footprint & Geolocation Proximity",
+        dropdownOptions: [
+          { value: "verified_local", label: "Local Business with High Proximity & Verified Citations" },
+          { value: "national_doorway", label: "National Keyword Doorway Page (No Physical Presence)" }
+        ],
+        briefing: {
+          title: "Aligning Web Search with Local Google Maps Knowledge",
+          summary: "Pigeon deeply connected Google’s traditional web ranking signals with local search algorithms, dramatically tightening distance and proximity calculations and elevating local directory authorities like Yelp.",
+          quote: "“Pigeon tied local search closer to traditional web ranking signals, rewarding local businesses with real physical proximity.”"
+        },
+        baseline: [
+          { id: "pg1", title: "Nationwide Plumber Network - Chicago Emergency Plumbing Doorway", url: "http://www.nationwideplumbing-leads.com/chicago-doorway", snippet: "Looking for emergency plumbers in Chicago? Nationwide lead generation call center. We dispatch contractor leads in 500 US cities.", type: "doorway", signals: { physicalAddress: "Virtual mailbox (Texas)", distanceToUser: "850 miles away", localCitations: "0 verified NAP" } },
+          { id: "pg2", title: "Cheap Chicago Plumber Hub - Directory Portal", url: "http://www.cheapchicagoplumberhub.biz/downtown-leads", snippet: "Directory of unverified contractor phone numbers for downtown Chicago pipe repairs.", type: "doorway", signals: { physicalAddress: "None", distanceToUser: "N/A", localCitations: "Low" } },
+          { id: "pg3", title: "Windy City Emergency Plumbing - 24/7 Downtown Loop Technicians", url: "http://www.windycityplumbing-chicago.com/downtown-emergency", snippet: "Licensed Chicago master plumbers based in the Loop. 15-minute emergency response time. Verified reviews, license #055-1284, physical shop on Clark St.", type: "verified_local", signals: { physicalAddress: "142 S Clark St, Chicago (Loop)", distanceToUser: "0.4 miles away", localCitations: "180 consistent NAP citations" } },
+          { id: "pg4", title: "Top 10 Emergency Plumbers in Downtown Chicago - Yelp Community Ratings", url: "http://www.yelp.com/search?cflt=plumbing&find_loc=Downtown+Chicago", snippet: "Read verified customer reviews, transparent pricing, and emergency availability for plumbers in Downtown Chicago, IL.", type: "directory", signals: { physicalAddress: "Curated Directory", distanceToUser: "Local aggregate", localCitations: "High Domain Authority" } },
+          { id: "pg5", title: "City of Chicago Department of Buildings - Plumbing Licensing Bureau", url: "http://www.chicago.gov/city/en/depts/bldgs/provdrs/plumbers", snippet: "Official public database to verify licensed and bonded plumbing contractors in Cook County.", type: "gov", signals: { physicalAddress: "Municipal", distanceToUser: "Official", localCitations: "Gov Authority" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "verified_local") {
+            items.forEach(it => {
+              if (it.id === "pg3") {
+                it.badge = "[LOCAL 3-PACK BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Pigeon Proximity Elevation: Physical location 0.4 miles away with verified NAP citations awards top rank."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "pg4") {
+                it.badge = "[LOCAL DIRECTORY BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Pigeon Directory Authority: Yelp and local aggregators boosted for local commercial queries."; it.annotationClass = "annotation-green";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "doorway") {
+                it.badge = "[PROXIMITY DEFICIT]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin";
+                it.annotation = "Doorway Filtered: Virtual mailbox and out-of-state lead generator demoted."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              it.badge = "[ORGANIC RANK]"; it.badgeClass = "badge-organic"; it.sortOrder = it.id === "pg3" ? 1 : (it.id === "pg4" ? 2 : 3); it.delta = "— 0"; it.deltaClass = "delta-neutral";
+            });
+          }
+        },
+        lesson: "Pigeon eliminated national lead-generation doorway pages that lacked local addresses. It established the holy grail of Local SEO: consistent Name, Address, and Phone (NAP) citations and physical proximity.",
+        prompts: [
+          { topic: "The Rise of the Local 3-Pack", question: "Why did Pigeon boost directory giants like Yelp?", note: "Pigeon recognized that when users search locally, authoritative directory aggregators often satisfy user comparison needs faster than single web pages." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 11. MOBILGEDDON (APRIL 2015) — THE MOBILE-FRIENDLY MANDATE
+      // ------------------------------------------------------------------------
+      {
+        id: "mobilegeddon",
+        chapter: 3,
+        index: 11,
+        name: "Mobilegeddon",
+        year: "April 2015",
+        subtitle: "The Mobile-Friendly Usability Mandate",
+        query: "best downtown cafe menu with outdoor seating",
+        dropdownLabel: "Mobile Viewport & Touch Target Optimization",
+        dropdownOptions: [
+          { value: "unresponsive_desktop", label: "Unresponsive Desktop Site (Pinch & Zoom Required)" },
+          { value: "responsive_mobile", label: "Responsive Mobile-Friendly Layout (Fluid Viewport & Touch Targets)" }
+        ],
+        briefing: {
+          title: "The Worldwide Mandate for Responsive Mobile Web Design",
+          summary: "In April 2015, Google introduced a binary mobile-friendly ranking signal for mobile searchers. Desktop-only pages with unreadable font sizes, tiny tap targets, and horizontal scrolling suffered immediate mobile demotions.",
+          quote: "“As more people use mobile devices to access the internet, our algorithms have to adapt to provide the best user experience on those devices.”"
+        },
+        baseline: [
+          { id: "m1", title: "Downtown Espresso Club: Full Menu & Historical Cafe Bio", url: "http://www.downtownespresso-desktoponly.com/menu.html", snippet: "Fixed 1200px width layout with Flash elements. Tap links set to 8px font size requiring pinch-and-zoom to read on smartphone screens.", type: "desktop_unresponsive", signals: { viewportConfigured: "No (Missing viewport meta)", tapTargetSpacing: "Failed (<12px)", mobileFriendlyPass: "Failed" } },
+          { id: "m2", title: "Cafe Bella Downtown - Food Menu PDF Download", url: "http://www.cafebelladowntown-unresponsive.net/menu.pdf", snippet: "Unformatted scanned PDF menu. Extremely heavy data download on 3G cellular connections.", type: "desktop_unresponsive", signals: { viewportConfigured: "No", tapTargetSpacing: "Failed", mobileFriendlyPass: "Failed" } },
+          { id: "m3", title: "Roast & Bloom Cafe - Mobile Menu, Outdoor Patio Seating & Hours", url: "http://www.roastandbloomcafe.com/mobile-menu", snippet: "Responsive fluid design with thumb-friendly buttons, tap-to-call, live outdoor patio seating status, and fast lightweight mobile rendering.", type: "mobile_friendly", signals: { viewportConfigured: "Yes (width=device-width)", tapTargetSpacing: "Passed (48px targets)", mobileFriendlyPass: "PASSED (100/100)" } },
+          { id: "m4", title: "Urban Brew Coffee Bar - Downtown Seasonal Drinks Menu", url: "http://www.urbanbrewcoffeebar.com/drinks", snippet: "Optimized mobile web app. Clear allergen information, mobile ordering, and accessible navigation.", type: "mobile_friendly", signals: { viewportConfigured: "Yes", tapTargetSpacing: "Passed", mobileFriendlyPass: "PASSED" } },
+          { id: "m5", title: "City Guide: Top 10 Coffee Patios Downtown", url: "http://www.cityguidemobile.org/best-cafe-patios", snippet: "Mobile friendly editorial listicle of coffee spots with outdoor gardens.", type: "mobile_friendly", signals: { viewportConfigured: "Yes", tapTargetSpacing: "Passed", mobileFriendlyPass: "PASSED" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "unresponsive_desktop") {
+            items.forEach(it => {
+              if (it.type === "desktop_unresponsive") {
+                it.badge = "[MOBILE USABILITY PENALTY]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Mobilegeddon Demotion: Missing viewport tag and tiny tap targets failed Google Mobile-Friendly test on smartphone search."; it.annotationClass = "annotation-red";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "m3") {
+                it.badge = "[MOBILE-FRIENDLY BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Mobile Usability Passed: Fluid viewport, fast assets, and 48px touch targets surge to #1 on mobile."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "m4") {
+                it.badge = "[MOBILE-FRIENDLY]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "mobile_friendly") { it.badge = "[MOBILE-FRIENDLY]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "m3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[NON-MOBILE]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Mobilegeddon was the catalyst that made responsive web design the universal standard. It signaled the transition to Google's Mobile-First Indexing.",
+        prompts: [
+          { topic: "The Smartphone Tipping Point", question: "Why did Google give a 2-month pre-announcement for Mobilegeddon?", note: "Unlike unannounced updates, Google pre-announced Mobilegeddon to give companies time to redesign because billions of dollars in mobile commerce were at stake." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 12. RANKBRAIN (OCTOBER 2015) — MACHINE LEARNING QUERY RESOLUTION
+      // ------------------------------------------------------------------------
+      {
+        id: "rankbrain",
+        chapter: 3,
+        index: 12,
+        name: "RankBrain",
+        year: "Oct 2015",
+        subtitle: "Machine Learning & Vector Embeddings",
+        query: "what is the title of the movie where a guy dreams inside a dream",
+        dropdownLabel: "Query Resolution Engine",
+        dropdownOptions: [
+          { value: "rankbrain_ai", label: "RankBrain Deep Neural Vector Inference" },
+          { value: "traditional_tfidf", label: "Traditional Keyword Frequency (TF-IDF Literal Matching)" }
+        ],
+        briefing: {
+          title: "Google’s First Deep Learning AI Algorithm",
+          summary: "In late 2015, Google revealed RankBrain, a machine-learning algorithm that projects queries and documents into mathematical vector spaces to understand ambiguous, never-before-seen search queries (15% of daily searches).",
+          quote: "“RankBrain is Google’s 3rd most important ranking signal, interpreting complex queries that have no obvious keyword match.”"
+        },
+        baseline: [
+          { id: "rb1", title: "Dream Inside a Dream: A Literary Essay on Edgar Allan Poe", url: "http://www.classicpoetry-essays.org/poe/dream-within-a-dream", snippet: "Full analysis of Edgar Allan Poe's 1849 poem 'A Dream Within a Dream'. Explaining the literal words: <em>guy dreams inside a dream</em>.", type: "literal_match", signals: { literalTermMatch: "95% (Matches 'dream inside a dream')", semanticVectorMatch: "0.28 (Wrong entity)", inferredEntity: "Poetry" } },
+          { id: "rb2", title: "Sleep Disorders: Why Do I Have Dreams Inside Dreams? (Lucid Dreaming)", url: "http://www.sleephealth-science.net/lucid-dreaming/dream-levels", snippet: "Medical explanation of false awakenings and dreaming that you are dreaming during REM sleep cycles.", type: "literal_match", signals: { literalTermMatch: "88%", semanticVectorMatch: "0.34", inferredEntity: "Sleep Medicine" } },
+          { id: "rb3", title: "Inception (2010) - Directed by Christopher Nolan | Warner Bros.", url: "http://www.warnerbros.com/movies/inception", snippet: "Official synopsis: Dom Cobb (Leonardo DiCaprio) is a skilled thief who steals valuable secrets from deep within the subconscious during the dream state through multi-level dream inception.", type: "neural_intent", signals: { literalTermMatch: "10% (Lacks the exact phrase)", semanticVectorMatch: "0.98 (Exact vector match)", inferredEntity: "Inception (Film, 2010)" } },
+          { id: "rb4", title: "Inception (2010) - Plot Summary, Cast & Dream Levels Explained | IMDb", url: "http://www.imdb.com/title/tt1375666", snippet: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO. Dream within a dream architecture.", type: "neural_intent", signals: { literalTermMatch: "12%", semanticVectorMatch: "0.96", inferredEntity: "Inception (Film, 2010)" } },
+          { id: "rb5", title: "Dream Movies Ranked: The Matrix, Waking Life & Paprika", url: "http://www.filmbuff-rankings.net/surrealist-dream-movies", snippet: "Curated ranking of mind-bending surrealist films dealing with altered states of reality and subconscious illusions.", type: "neural_intent", signals: { literalTermMatch: "25%", semanticVectorMatch: "0.65", inferredEntity: "Movie List" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "rankbrain_ai") {
+            items.forEach(it => {
+              if (it.id === "rb3") {
+                it.badge = "[RANKBRAIN INFERENCE]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Neural Vector Resolution: RankBrain mapped the ambiguous query to the entity 'Inception (2010)' despite missing literal keywords."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "rb4") {
+                it.badge = "[NEURAL ENTITY MATCH]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "literal_match") {
+                it.badge = "[MISMATCHED INTENT]"; it.badgeClass = "badge-organic"; it.cardClass = "state-panda-thin";
+                it.annotation = "Literal string match bypassed: User was seeking the blockbuster movie Inception, not 19th-century poetry."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "literal_match") { it.badge = "[LITERAL TF-IDF MATCH]"; it.badgeClass = "badge-organic"; it.cardClass = ""; it.sortOrder = it.id === "rb1" ? 1 : 2; it.delta = "— 0"; it.deltaClass = "delta-neutral"; }
+              else { it.badge = "[MISSED BY KEYWORDS]"; it.badgeClass = "badge-thin-content"; it.sortOrder = 5; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "RankBrain marked Google's transition into an AI-first company. It proved that deep learning could bridge the gap between human colloquial language and database entities.",
+        prompts: [
+          { topic: "The 15% Unseen Query Challenge", question: "Why can't human rule-based programming solve search?", note: "Every day, 15% of queries entered into Google have never been searched before in history. Only machine learning vector models can generalize to unseen language." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 13. MEDIC UPDATE (AUGUST 2018) — YMYL HEALTH & FINANCIAL TRUST
+      // ------------------------------------------------------------------------
+      {
+        id: "medic",
+        chapter: 4,
+        index: 13,
+        name: "Medic Update",
+        year: "Aug 2018",
+        subtitle: "YMYL Rigor & Medical Authority",
+        query: "diet to reverse high blood pressure naturally",
+        dropdownLabel: "Author Medical Accreditation & Institutional Oversight",
+        dropdownOptions: [
+          { value: "unaccredited_affiliate", label: "Unaccredited Wellness Influencer (Selling Supplements)" },
+          { value: "board_certified_md", label: "Board-Certified Cardiologist with Peer-Reviewed Citations" }
+        ],
+        briefing: {
+          title: "The Birth of Strict YMYL (Your Money or Your Life) Enforcement",
+          summary: "The August 2018 Core Update (nicknamed 'Medic' by Barry Schwartz) pulverized wellness blogs, alternative health sites, and unaccredited advice on queries that could impact a user’s physical health or financial solvency.",
+          quote: "“Pages with advice that can impact a person’s future happiness, health, financial stability, or safety (YMYL) must be held to the highest quality standards.”"
+        },
+        baseline: [
+          { id: "md1", title: "Miracle Blood Pressure Cure: Secret Herb Drops That Reverse Hypertension", url: "http://www.holisticlifehacks-wellness24.biz/cure-hypertension", snippet: "Doctors don't want you to know this simple ancient spice protocol. Stop taking prescription beta blockers and buy our patented organic tincture.", type: "unaccredited", signals: { medicalAuthorVerified: "None (Pen name)", peerReviewed: "No", affiliateSupplementSales: "Heavy" } },
+          { id: "md2", title: "Top 7 Natural Home Remedies for High Blood Pressure", url: "http://www.dailywellnesssecrets-aggregate.net/blood-pressure-tips", snippet: "Drink celery juice and inhale lavender oil to lower your systolic pressure in 48 hours. Read our sponsored user reviews.", type: "unaccredited", signals: { medicalAuthorVerified: "Anonymous", peerReviewed: "No", affiliateSupplementSales: "Heavy" } },
+          { id: "md3", title: "DASH Diet for Hypertension: Clinical Guidelines & Potassium Trial Data", url: "http://www.americanheart-journalreview.org/dash-diet-hypertension", snippet: "Written by Dr. Marcus Thorne, MD, FACC (American College of Cardiology); Reviewed by Clinical Dietitians. Evidence-based analysis of sodium reduction, potassium supplementation, and randomized trial outcomes.", type: "accredited", signals: { medicalAuthorVerified: "Board-Certified MD", peerReviewed: "Yes (Institutional)", affiliateSupplementSales: "None (Public Health)" } },
+          { id: "md4", title: "Mayo Clinic: 10 Lifestyle Ways to Control High Blood Pressure", url: "http://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/art-20046974", snippet: "Clinical overview of aerobic exercise parameters, sodium restrictions, waistline measurements, and when medication remains medically mandatory.", type: "accredited", signals: { medicalAuthorVerified: "Hospital Editorial Board", peerReviewed: "Yes", affiliateSupplementSales: "None" } },
+          { id: "md5", title: "Hypertension Patient Support Forum & Diet Diary", url: "http://www.cardiohealthforum.org/discussion/diet-experiences", snippet: "Community discussion board sharing low-sodium dinner recipes and blood pressure monitor logs.", type: "forum", signals: { medicalAuthorVerified: "UGC Community", peerReviewed: "No", affiliateSupplementSales: "None" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "unaccredited_affiliate") {
+            items.forEach(it => {
+              if (it.type === "unaccredited") {
+                it.badge = "[YMYL HEALTH DEFICIT]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Medic Penalty: Unverified medical claims and commercial supplement promotion demoted to protect patient health."; it.annotationClass = "annotation-red";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "md3") {
+                it.badge = "[CARDIOLOGY AUTHORITY]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "YMYL High Trust: Board-certified cardiologist and clinical trial citations awarded #1 rank."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "md4") {
+                it.badge = "[INSTITUTIONAL TRUST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "accredited") { it.badge = "[ACCREDITED MEDICAL]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "md3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[YMYL DEFICIT]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Medic established that on high-stakes YMYL queries, Google treats health and financial advice with extreme scrutiny, prioritizing institutional medical accreditation over agile affiliate publishers.",
+        prompts: [
+          { topic: "The Ethics of Health SEO", question: "Why is misinformation in search queries a life-or-death issue?", note: "When patients abandon prescription hypertension medications because of an unvetted affiliate blog, search algorithms bear ethical responsibility." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 14. BERT UPDATE (OCTOBER 2019) — CONTEXTUAL TRANSFORMERS & PREPOSITIONS
+      // ------------------------------------------------------------------------
+      {
+        id: "bert",
+        chapter: 4,
+        index: 14,
+        name: "BERT Update",
+        year: "Oct 2019",
+        subtitle: "Contextual Transformers & Nuance",
+        query: "2019 brazil traveler to usa need visa",
+        dropdownLabel: "Natural Language Processing Architecture",
+        dropdownOptions: [
+          { value: "bert_transformer", label: "BERT Bidirectional Contextual Transformer (Parses 'to')" },
+          { value: "unidirectional_bow", label: "Unidirectional Bag-of-Words (Ignores Preposition Direction)" }
+        ],
+        briefing: {
+          title: "Understanding Every Preposition and Bidirectional Word Context",
+          summary: "BERT (Bidirectional Encoder Representations from Transformers) enabled Google to process words in relation to all other words in a sentence, crucially understanding tricky prepositions like 'to', 'for', and 'from'.",
+          quote: "“BERT represents the biggest leap forward in the past five years, and one of the biggest leaps in the history of search.” — Pandu Nayak, Google VP of Search"
+        },
+        baseline: [
+          { id: "b1", title: "US Citizens Traveling to Brazil: Visa Exemption Guidelines", url: "http://www.brazilconsulate-portal.org/us-citizens-visas", snippet: "Important notice for <em>US citizens traveling to Brazil</em>: Effective June 2019, American passport holders no longer require a visitor visa to enter Brazil for tourism.", type: "inverted_direction", signals: { syntaxParsing: "Reversed direction (USA -> Brazil)", prepositionAwareness: "Ignored 'to'", userQueryFit: "Opposite of user question" } },
+          { id: "b2", title: "Travel Warnings: US Travelers Heading to South America", url: "http://www.traveladvisory-americas.net/brazil-entry", snippet: "Passport validity rules for Americans flying south to Rio de Janeiro and São Paulo.", type: "inverted_direction", signals: { syntaxParsing: "Reversed", prepositionAwareness: "Failed", userQueryFit: "Poor" } },
+          { id: "b3", title: "Official US Embassy & Consulates in Brazil: Nonimmigrant Visa Applications", url: "http://www.br.usembassy.gov/visas/nonimmigrant-visas", snippet: "Information for <em>Brazilian citizens traveling TO the United States</em>. Step-by-step DS-160 application instructions, appointment scheduling, and B1/B2 tourist visa requirements.", type: "correct_direction", signals: { syntaxParsing: "Bidirectional (Brazil -> USA)", prepositionAwareness: "Parsed 'to' correctly", userQueryFit: "Exact match" } },
+          { id: "b4", title: "US Department of State: Visa Requirements for Brazilian Passport Holders", url: "http://www.travel.state.gov/visas/brazil-to-usa-guidance", snippet: "Comprehensive visa guide for tourists and business travelers from Brazil traveling to the United States. Interview waivers and consular processing.", type: "correct_direction", signals: { syntaxParsing: "Bidirectional", prepositionAwareness: "Accurate", userQueryFit: "Exact" } },
+          { id: "b5", title: "Flight Deals: São Paulo (GRU) to New York (JFK)", url: "http://www.globalairfares.com/brazil-to-usa-flights", snippet: "Cheap flights from Brazil to the United States.", type: "commercial", signals: { syntaxParsing: "Partial", prepositionAwareness: "Basic", userQueryFit: "Commercial" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "bert_transformer") {
+            items.forEach(it => {
+              if (it.id === "b3") {
+                it.badge = "[BERT PREPOSITION RESOLVED]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "BERT Syntax Breakthrough: Parsed 'to' in relation to 'Brazil traveler', correctly delivering US Embassy visa rules for Brazilians."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "b4") {
+                it.badge = "[BERT CONTEXT BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.type === "inverted_direction") {
+                it.badge = "[REVERSED SYNTAX DEMOTED]"; it.badgeClass = "badge-thin-content"; it.cardClass = "state-panda-thin";
+                it.annotation = "Demoted: Page answers Americans traveling to Brazil—the exact opposite of the user's intent."; it.annotationClass = "annotation-faded";
+                it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "inverted_direction") { it.badge = "[BAG-OF-WORDS MATCH]"; it.badgeClass = "badge-organic"; it.sortOrder = it.id === "b1" ? 1 : 2; it.delta = "— 0"; it.deltaClass = "delta-neutral"; }
+              else { it.badge = "[CORRECT BUT LOWER]"; it.badgeClass = "badge-organic"; it.sortOrder = 4; it.delta = "— 0"; it.deltaClass = "delta-neutral"; }
+            });
+          }
+        },
+        lesson: "Before BERT, search engines treated prepositions as 'stop words' and ignored them. BERT proved that a single word like 'to' completely reverses the intent of a human sentence.",
+        prompts: [
+          { topic: "The Power of Bidirectional Attention", question: "Why do Transformers outperform sequential models?", note: "Transformers look at all words simultaneously in both directions, capturing delicate relational dependencies in conversational syntax." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 15. CORE WEB VITALS (JUNE 2021) — SPEED & TECHNICAL USER EXPERIENCE
+      // ------------------------------------------------------------------------
+      {
+        id: "cwv",
+        chapter: 4,
+        index: 15,
+        name: "Core Web Vitals",
+        year: "June 2021",
+        subtitle: "Page Experience & Speed Metrics",
+        query: "secure online mortgage loan pre-approval calculator",
+        dropdownLabel: "Technical UX & Core Web Vitals Performance",
+        dropdownOptions: [
+          { value: "poor_ux", label: "Slow Page with Massive Layout Shifts (LCP > 4.5s, CLS = 0.45)" },
+          { value: "good_cwv", label: "Optimized Core Web Vitals (LCP < 1.2s, CLS = 0.01, INP = 60ms)" }
+        ],
+        briefing: {
+          title: "Quantifying Real-World Technical User Experience",
+          summary: "In 2021, Google turned user experience into an explicit ranking factor using Core Web Vitals: Largest Contentful Paint (loading speed), Cumulative Layout Shift (visual stability), and Interaction to Next Paint (responsiveness).",
+          quote: "“Core Web Vitals are a set of real-world, user-centered metrics that quantify key aspects of the user experience on the web.”"
+        },
+        baseline: [
+          { id: "cw1", title: "Mortgage Rate Matrix & Instant Loan Approval - Pop-up Calculator", url: "http://www.mortgageratematrix-slowadheavy.biz/calculator", snippet: "Calculate your monthly home loan payment. Features heavy unoptimized JavaScript bundles, layout-shifting display banners, and 5-second initial load delays.", type: "poor_vitals", signals: { LCP: "4.8s (Poor / Red)", CLS: "0.42 (Severe shift)", INP: "450ms (Sluggish)" } },
+          { id: "cw2", title: "Home Loan Quote Generator & Refinance Wizard", url: "http://www.homeloanquotewizard-sluggish.net/calculate", snippet: "Interactive calculation tool that janks during slider interactions and triggers layout shifts when banner ads lazy load.", type: "poor_vitals", signals: { LCP: "3.9s (Needs work)", CLS: "0.29 (Shifting)", INP: "380ms" } },
+          { id: "cw3", title: "ClearRate Mortgage: Instant Pre-Approval Calculator (Fast & Secure)", url: "http://www.clearratemortgage-optimized.com/calculator", snippet: "Lightning-fast static pre-approval tool. Zero layout shifts, instant touch response, bank-grade encryption, and clean transparent amortization schedules.", type: "good_vitals", signals: { LCP: "0.9s (Good / Green)", CLS: "0.00 (Rock solid)", INP: "45ms (Instant)" } },
+          { id: "cw4", title: "Consumer Financial Protection Bureau: Official Mortgage Worksheet", url: "http://www.consumerfinance.gov/owning-a-home/mortgage-calculator", snippet: "Government agency transparent mortgage calculator. No advertising, zero tracking scripts, optimal accessibility score.", type: "good_vitals", signals: { LCP: "1.1s (Good)", CLS: "0.01", INP: "50ms" } },
+          { id: "cw5", title: "Bankrate Mortgage Amortization Schedule & Payment Guide", url: "http://www.bankrate.com/mortgages/calculators", snippet: "Detailed amortization schedules and loan payoff acceleration strategies.", type: "moderate_vitals", signals: { LCP: "2.4s", CLS: "0.08", INP: "180ms" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "poor_ux") {
+            items.forEach(it => {
+              if (it.type === "poor_vitals") {
+                it.badge = "[PAGE EXPERIENCE PENALTY]"; it.badgeClass = "badge-warning"; it.cardClass = "state-warning-orange";
+                it.annotation = "Core Web Vitals Failure: Severe Cumulative Layout Shift (0.42) and sluggish 4.8s LCP triggered UX ranking demotion."; it.annotationClass = "annotation-orange";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "cw3") {
+                it.badge = "[CORE WEB VITALS BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "Page Experience Green: Sub-second LCP and zero visual layout shifts elevate calculator to #1."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "cw4") {
+                it.badge = "[PAGE EXPERIENCE PASSED]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "good_vitals") { it.badge = "[PAGE EXPERIENCE BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "cw3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[POOR VITALS]"; it.badgeClass = "badge-warning"; it.cardClass = "state-warning-orange"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "Core Web Vitals codified technical frontend engineering into search rankings. It forced developers to eliminate jarring layout shifts (CLS) and prioritize Largest Contentful Paint (LCP).",
+        prompts: [
+          { topic: "Tie-Breaker vs Dominant Factor", question: "Can a fast page outrank a page with better content?", note: "Google has clarified that relevance remains king—Core Web Vitals acts as a tie-breaker when multiple pages offer equally relevant content." }
+        ]
+      },
+
+      // ------------------------------------------------------------------------
+      // 16. HELPFUL CONTENT & MODERN E-E-A-T (2024 - PRESENT) — EXPERT PROVENANCE
+      // ------------------------------------------------------------------------
+      {
+        id: "helpful_eeat",
+        chapter: 4,
+        index: 16,
+        name: "Helpful Content & E-E-A-T",
+        year: "2024 - Present",
+        subtitle: "Experience, Anti-Parasite SEO & AI Quality",
+        query: "best wireless noise cancelling headphones review field test",
+        dropdownLabel: "Content Provenance & First-Hand Testing Evidence",
+        dropdownOptions: [
+          { value: "mass_ai_parasite", label: "Parasite SEO & Scaled AI Content Mill (Synthetic Rehash)" },
+          { value: "hands_on_testing", label: "First-Hand Hands-On Lab Testing (Original Decibel & Mic Charts)" }
+        ],
+        briefing: {
+          title: "The Battle Against Scaled AI Content & Parasite SEO Abuse",
+          summary: "In 2024, Google incorporated the Helpful Content System directly into its core ranking algorithms, penalizing scaled unedited AI content mills and third-party 'Parasite SEO' on trusted media subdomains, while elevating first-hand human experience (E-E-A-T).",
+          quote: "“Does the content provide original information, reporting, or research? Was it created primarily to help people, or to manipulate search engine rankings?”"
+        },
+        baseline: [
+          { id: "ee1", title: "Best Noise Cancelling Headphones 2024 (AI Curated Overview)", url: "http://www.techgadget-reviewfactory.ai/best-noise-cancelling-headphones", snippet: "In this comprehensive guide, we summarize the best headphones. Features top-rated models with affiliate buying buttons. Generated by automated editorial bots.", type: "parasite_ai", signals: { firstHandPhotos: "0 (Stock images)", labDecibelMeasurements: "None", authorExperience: "Anonymous AI Bot", parasiteSubdomain: "No" } },
+          { id: "ee2", title: "Top Rated Headphones: Sponsored Buyer's Guide - Prestigious Forbes Subdomain", url: "http://www.trustedmedia-outlets.com/advisor/headphones-deals-review", snippet: "Third-party affiliate operator renting a subfolder on a major news site to piggyback on domain authority. Thin affiliate rehash of Amazon specs.", type: "parasite_ai", signals: { firstHandPhotos: "0", labDecibelMeasurements: "None", authorExperience: "Affiliate Middleman", parasiteSubdomain: "Site Reputation Abuse" } },
+          { id: "ee3", title: "RTINGS.com - Wireless Noise Cancelling Headphones: Laboratory Sound & ANC Tests", url: "http://www.rtings.com/headphones/reviews/best/by-feature/active-noise-cancelling", snippet: "Exhaustive lab tests using a dummy head microphone in an isolation chamber. Exact decibel attenuation curves at 100Hz engine rumble vs 1kHz human speech, battery longevity field logs, and original tear-down photos.", type: "hands_on_eeat", signals: { firstHandPhotos: "48 original lab photos", labDecibelMeasurements: "Custom frequency isolation curves", authorExperience: "Acoustics Test Engineer", parasiteSubdomain: "Independent Lab" } },
+          { id: "ee4", title: "SoundGuys: Laboratory Tested Headphone ANC Frequency Attenuation Charts", url: "http://www.soundguys.com/best-noise-cancelling-headphones-lab-tested", snippet: "Objective acoustic measurements. Comparative active noise cancelling spectrum charts and real-world subway commuter test recordings.", type: "hands_on_eeat", signals: { firstHandPhotos: "32 original photos", labDecibelMeasurements: "Audio Precision hardware", authorExperience: "Audio Engineer Bio", parasiteSubdomain: "Independent" } },
+          { id: "ee5", title: "Reddit /r/Headphones: Real User Daily Commute Longevity Discussions", url: "http://www.reddit.com/r/headphones/comments/noise_cancelling_real_world", snippet: "Community thread sharing 2-year hinge durability and ear-pad sweat wear feedback.", type: "forum_ugc", signals: { firstHandPhotos: "User uploads", labDecibelMeasurements: "Subjective user", authorExperience: "Real-world owners", parasiteSubdomain: "Forum" } }
+        ],
+        execute: function(opt, items) {
+          if (opt === "mass_ai_parasite") {
+            items.forEach(it => {
+              if (it.type === "parasite_ai") {
+                it.badge = "[SCALED AI / PARASITE PENALTY]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red";
+                it.annotation = "Helpful Content & Site Reputation Abuse Policy: Demoted for lacking first-hand testing and exploiting domain reputation."; it.annotationClass = "annotation-red";
+                it.sortOrder = 90; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down";
+              } else if (it.id === "ee3") {
+                it.badge = "[E-E-A-T FIRST-HAND LAB PROOF]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.annotation = "E-E-A-T Certified: Custom decibel isolation curves and original lab dummy head measurements surge to #1."; it.annotationClass = "annotation-green";
+                it.sortOrder = 1; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else if (it.id === "ee4") {
+                it.badge = "[AUTHENTIC EXPERIENCE BOOST]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost";
+                it.sortOrder = 2; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              } else {
+                it.badge = "[AUTHENTIC UGC]"; it.badgeClass = "badge-organic"; it.sortOrder = 3; it.delta = "▲ +2"; it.deltaClass = "delta-up";
+              }
+            });
+          } else {
+            items.forEach(it => {
+              if (it.type === "hands_on_eeat") { it.badge = "[E-E-A-T LAB PROOF]"; it.badgeClass = "badge-boost-green"; it.cardClass = "state-green-boost"; it.sortOrder = it.id === "ee3" ? 1 : 2; it.delta = "▲ +2"; it.deltaClass = "delta-up"; }
+              else { it.badge = "[LOW VALUE REHASH]"; it.badgeClass = "badge-penalized"; it.cardClass = "state-penalized-red"; it.sortOrder = 80; it.delta = "▼ DEMOTED"; it.deltaClass = "delta-down"; }
+            });
+          }
+        },
+        lesson: "The addition of the first 'E' for Experience in E-E-A-T highlights that when AI can synthesize text instantly, first-hand physical experience, original laboratory photos, and genuine testing evidence are the ultimate differentiators.",
+        prompts: [
+          { topic: "The Crackdown on Parasite SEO", question: "Why did Google target legacy news media renting their subdomains?", note: "When trusted news publications leased subdomains to third-party affiliate review syndicates, it corrupted the trust foundation of PageRank." }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       GLOBAL STATE
+       ========================================================================== */
+    const state = {
+      activeUpdateIndex: 0,     // 0 through 15
+      activeChapter: 1,         // 1 through 4
+      selectedOption: "",       // active dropdown value
+      isExecuted: false,        // whether update has been executed
+      serpItems: []             // current active results
+    };
+
+    /* ==========================================================================
+       INITIALIZATION
+       ========================================================================== */
+    function init() {
+      populateTimelineSelect();
+      loadUpdate(0);
+    }
+
+    function populateTimelineSelect() {
+      const select = document.getElementById("all-updates-select");
+      select.innerHTML = "";
+
+      const chapterNames = {
+        1: "Chapter 1: The Early Web & Spam Wars (2003–2007)",
+        2: "Chapter 2: Brands, Freshness & Quality (2009–2012)",
+        3: "Chapter 3: Semantics, Mobile & Neural Models (2013–2016)",
+        4: "Chapter 4: Modern Intelligence, UX & E-E-A-T (2018–2024)"
+      };
+
+      let currentGroup = null;
+      let currentGroupNum = 0;
+
+      ALL_UPDATES.forEach((up, idx) => {
+        if (up.chapter !== currentGroupNum) {
+          currentGroupNum = up.chapter;
+          currentGroup = document.createElement("optgroup");
+          currentGroup.label = chapterNames[currentGroupNum];
+          select.appendChild(currentGroup);
+        }
+
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${up.name} (${up.year}) — ${up.subtitle}`;
+        currentGroup.appendChild(opt);
+      });
+    }
+
+    /* ==========================================================================
+       UPDATE SWITCHING & CHAPTER LOGIC
+       ========================================================================== */
+    function loadUpdate(index) {
+      if (index < 0) index = 0;
+      if (index >= ALL_UPDATES.length) index = ALL_UPDATES.length - 1;
+
+      state.activeUpdateIndex = index;
+      const updateData = ALL_UPDATES[index];
+      state.activeChapter = updateData.chapter;
+      state.selectedOption = updateData.dropdownOptions[0].value;
+      state.isExecuted = false;
+
+      // Update Header Stepper state
+      document.getElementById("prev-step-btn").disabled = index === 0;
+      document.getElementById("next-step-btn").disabled = index === ALL_UPDATES.length - 1;
+
+      // Update Chapter Buttons
+      for (let c = 1; c <= 4; c++) {
+        const btn = document.getElementById(`chap-btn-${c}`);
+        if (btn) btn.classList.toggle("active-chapter", c === updateData.chapter);
+      }
+
+      // Sync Timeline Select
+      document.getElementById("all-updates-select").value = index;
+      document.getElementById("era-counter-badge").textContent = `${index + 1} of 16`;
+      document.getElementById("chapter-label-pill").textContent = `CHAPTER ${updateData.chapter}`;
+
+      // Render Chapter Grid Pills
+      renderChapterPills();
+
+      // Render Briefing Box & Universal Dropdown
+      renderControls();
+
+      // Load Baseline SERP
+      loadBaselineSERP();
+
+      // Render Educational Analysis Box
+      renderEducationalBox();
+
+      // Render Discussion Prompts
+      renderDiscussionPrompts();
+    }
+
+    function stepUpdate(delta) {
+      loadUpdate(state.activeUpdateIndex + delta);
+    }
+
+    function jumpToUpdate(indexStr) {
+      loadUpdate(parseInt(indexStr, 10));
+    }
+
+    function switchChapter(chapterNum) {
+      state.activeChapter = chapterNum;
+      // Find the first update belonging to this chapter
+      const targetIdx = ALL_UPDATES.findIndex(u => u.chapter === chapterNum);
+      if (targetIdx !== -1) {
+        loadUpdate(targetIdx);
+      }
+    }
+
+    function renderChapterPills() {
+      const container = document.getElementById("chapter-pills-container");
+      container.innerHTML = "";
+
+      const chapterUpdates = ALL_UPDATES.filter(u => u.chapter === state.activeChapter);
+
+      chapterUpdates.forEach(u => {
+        const globalIdx = ALL_UPDATES.indexOf(u);
+        const isActive = globalIdx === state.activeUpdateIndex;
+
+        const pill = document.createElement("button");
+        pill.className = `era-pill-btn ${isActive ? 'active' : ''}`;
+        pill.onclick = () => loadUpdate(globalIdx);
+
+        pill.innerHTML = `
+          <span>${u.index}. ${u.name}</span>
+          <span class="era-pill-year">${u.year}</span>
+        `;
+        container.appendChild(pill);
+      });
+    }
+
+    function renderControls() {
+      const u = ALL_UPDATES[state.activeUpdateIndex];
+
+      // Briefing box
+      const briefingBox = document.getElementById("era-briefing-box");
+      briefingBox.innerHTML = `
+        <div class="era-briefing-title">
+          <span>${u.name} (${u.year})</span>
+          <span class="pedagogy-chip">${u.subtitle}</span>
+        </div>
+        <div>${u.briefing.summary}</div>
+        <div class="era-quote">${u.briefing.quote}</div>
+      `;
+
+      // Dropdown Label & Options
+      document.getElementById("config-dropdown-label").textContent = u.dropdownLabel;
+      const select = document.getElementById("era-config-select");
+      select.innerHTML = "";
+
+      u.dropdownOptions.forEach(opt => {
+        const optionEl = document.createElement("option");
+        optionEl.value = opt.value;
+        optionEl.textContent = opt.label;
+        if (opt.value === state.selectedOption) optionEl.selected = true;
+        select.appendChild(optionEl);
+      });
+
+      // Sub-banner
+      document.getElementById("meta-engine-tag").textContent = `${u.index} / 16 · ${u.name} (${u.year})`;
+    }
+
+    function handleDropdownChange(value) {
+      state.selectedOption = value;
+      state.isExecuted = false;
+      loadBaselineSERP();
+      renderEducationalBox();
+    }
+
+    /* ==========================================================================
+       SERP BASELINE & EXECUTION
+       ========================================================================== */
+    function loadBaselineSERP() {
+      state.isExecuted = false;
+      const u = ALL_UPDATES[state.activeUpdateIndex];
+
+      state.serpItems = JSON.parse(JSON.stringify(u.baseline));
+
+      document.getElementById("serp-query-input").value = u.query;
+      document.getElementById("serp-query-label").textContent = `"${u.query}"`;
+      document.getElementById("meta-status-tag").textContent = "Pre-Update Baseline (Vulnerable Index)";
+      document.getElementById("filter-state-name").textContent = "Unfiltered Early Index";
+      document.getElementById("filter-state-name").style.color = "var(--text-secondary)";
+      document.getElementById("execution-pill").textContent = "BASELINE SERP LOADED";
+      document.getElementById("execution-pill").style.color = "var(--text-secondary)";
+      document.getElementById("dropdown-status-chip").textContent = "READY TO EXECUTE";
+
+      renderSERPList(false);
+    }
+
+    function resetToBaseline() {
+      loadBaselineSERP();
+      renderEducationalBox();
+    }
+
+    function revertToPreUpdate() {
+      loadBaselineSERP();
+      renderEducationalBox();
+    }
+
+    function executeGoogleUpdate() {
+      state.isExecuted = true;
+      const u = ALL_UPDATES[state.activeUpdateIndex];
+
+      // Deep copy baseline
+      let items = JSON.parse(JSON.stringify(u.baseline));
+
+      // Execute custom algorithmic transformation
+      u.execute(state.selectedOption, items);
+
+      // Sort according to update's logic
+      items.sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+      state.serpItems = items;
+
+      // Status labels
+      document.getElementById("meta-status-tag").textContent = "Post-Update Active (Algorithmic Filter Applied)";
+      document.getElementById("filter-state-name").textContent = `${u.name} Engine Active`;
+      document.getElementById("filter-state-name").style.color = "var(--google-blue)";
+      document.getElementById("execution-pill").textContent = "ALGORITHM EXECUTED";
+      document.getElementById("execution-pill").style.color = "var(--google-green)";
+      document.getElementById("dropdown-status-chip").textContent = "ACTIVE IN SERP";
+
+      renderSERPList(true);
+      renderEducationalBox();
+    }
+
+    /* ==========================================================================
+       RENDER SERP LIST
+       ========================================================================== */
+    function renderSERPList(animate) {
+      const container = document.getElementById("serp-results-container");
+      container.innerHTML = "";
+
+      state.serpItems.forEach((item, index) => {
+        const currentRank = index + 1;
+        const card = document.createElement("article");
+        card.className = `serp-item ${item.cardClass || ''} ${animate ? 'animate-reorder' : ''}`;
+        card.id = `result-${item.id}`;
+
+        let deltaHtml = `<span class="rank-delta delta-neutral">— 0</span>`;
+        if (state.isExecuted && item.delta) {
+          deltaHtml = `<span class="rank-delta ${item.deltaClass || 'delta-neutral'}">${item.delta}</span>`;
+        }
+
+        let badgeHtml = '';
+        if (state.isExecuted && item.badge) {
+          badgeHtml = `<span class="serp-status-badge ${item.badgeClass || 'badge-organic'}">${item.badge}</span>`;
+        } else {
+          badgeHtml = `<span class="serp-status-badge badge-organic">[RANK #${currentRank}]</span>`;
+        }
+
+        let annotationHtml = '';
+        if (state.isExecuted && item.annotation) {
+          annotationHtml = `<div class="status-annotation ${item.annotationClass || 'annotation-faded'}">${item.annotation}</div>`;
+        }
+
+        let signalsGridHtml = '';
+        if (item.signals) {
+          signalsGridHtml = Object.entries(item.signals).map(([key, val]) => `
+            <div class="sig-item">
+              <span class="sig-name">${key.replace(/([A-Z])/g, ' $1').toUpperCase()}</span>
+              <span class="sig-val">${val}</span>
+            </div>
+          `).join('');
+        }
+
+        card.innerHTML = `
+          <div class="serp-rank-col">
+            <span class="rank-number">#${currentRank}</span>
+            ${deltaHtml}
+          </div>
+
+          <div class="serp-content-col">
+            <div class="serp-url-row">
+              <span class="serp-display-url">${item.url}</span>
+              <span class="serp-cached-link">Cached</span>
+              ${badgeHtml}
+            </div>
+
+            <a class="serp-title" href="#inspect-${item.id}" onclick="event.preventDefault(); toggleSignals('${item.id}');">
+              ${item.title}
+            </a>
+
+            <div class="serp-snippet">${item.snippet}</div>
+            ${annotationHtml}
+
+            <button class="signals-toggle-btn" onclick="toggleSignals('${item.id}')" aria-expanded="false" id="sig-btn-${item.id}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <span>Inspect Underlying Page Signals</span>
+            </button>
+
+            <div class="signals-drawer" id="sig-drawer-${item.id}">
+              <div class="signals-grid">
+                ${signalsGridHtml}
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function toggleSignals(id) {
+      const drawer = document.getElementById(`sig-drawer-${id}`);
+      const btn = document.getElementById(`sig-btn-${id}`);
+      if (drawer) {
+        const isOpen = drawer.classList.toggle("open");
+        btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        btn.querySelector("span").textContent = isOpen 
+          ? "Hide Underlying Page Signals" 
+          : "Inspect Underlying Page Signals";
+      }
+    }
+
+    /* ==========================================================================
+       DYNAMIC EDUCATIONAL ANALYSIS BOX
+       ========================================================================== */
+    function renderEducationalBox() {
+      const container = document.getElementById("edu-content-area");
+      const chip = document.getElementById("edu-chip");
+      const u = ALL_UPDATES[state.activeUpdateIndex];
+
+      chip.textContent = `${u.year} · UPDATE ${u.index}`;
+
+      if (!state.isExecuted) {
+        container.innerHTML = `
+          <div>
+            <div class="edu-section-title">Pre-Update Baseline Environment (${u.year})</div>
+            <p>${u.briefing.summary}</p>
+          </div>
+          <div class="edu-highlight">
+            <strong>Classroom Observation:</strong> Examine the current baseline SERP for <strong>"${u.query}"</strong>. Notice how vulnerable or manipulative pages exploit early heuristics. Click <strong>"Execute Google Update"</strong> to trigger Google's algorithmic intervention.
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div>
+            <div class="edu-section-title">Algorithmic Mechanics & Impact</div>
+            <p>${u.lesson}</p>
+          </div>
+          <div class="edu-highlight quality">
+            <strong>Active Strategy Executed:</strong> You simulated <em>"${state.selectedOption.replace(/_/g, ' ')}"</em>. The algorithm dynamically evaluated crawl signals, semantic vectors, link topology, or E-E-A-T credentials and reordered the search results.
+          </div>
+          <div class="edu-takeaway">
+            <span class="edu-takeaway-label">Key Takeaway for Students:</span>
+            Search algorithms continually evolve from simple syntactic counting to semantic understanding, entity reputation, and verified human experience.
+          </div>
+        `;
+      }
+    }
+
+    /* ==========================================================================
+       RENDER DISCUSSION PROMPTS
+       ========================================================================== */
+    function renderDiscussionPrompts() {
+      const container = document.getElementById("discussion-prompts-container");
+      container.innerHTML = "";
+      const u = ALL_UPDATES[state.activeUpdateIndex];
+
+      if (u.prompts && u.prompts.length > 0) {
+        u.prompts.forEach((p, idx) => {
+          const card = document.createElement("div");
+          card.className = "prompt-card";
+          card.innerHTML = `
+            <div class="prompt-num">Seminar Prompt ${idx + 1} &bull; ${p.topic}</div>
+            <div class="prompt-text">${p.question}</div>
+            <div class="prompt-sub">${p.note}</div>
+          `;
+          container.appendChild(card);
+        });
+      } else {
+        const card = document.createElement("div");
+        card.className = "prompt-card";
+        card.innerHTML = `
+          <div class="prompt-num">Lecture Reflection &bull; ${u.name}</div>
+          <div class="prompt-text">How did ${u.name} reshape publisher incentives in ${u.year}?</div>
+          <div class="prompt-sub">Consider whether the update favored large institutional incumbents or leveled the playing field for authentic content creators.</div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
