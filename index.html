@@ -1239,6 +1239,40 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
+
+    /* Learning-first notice and responsive accessibility refinements */
+    .learning-notice { max-width: 1600px; margin: 1rem auto 0; padding: 0 1.5rem; }
+    .learning-notice-inner { display:flex; align-items:flex-start; gap:.75rem; padding:.85rem 1rem; border:1px solid #d2e3fc; border-left:4px solid var(--google-blue); border-radius:var(--radius-md); background:#f8fafd; color:var(--text-main); font-size:.82rem; line-height:1.55; }
+    .learning-notice-inner strong { color:var(--google-blue-dark); }
+    .learning-notice-copy { flex:1; }
+    .learning-steps { display:flex; flex-wrap:wrap; gap:.45rem 1rem; margin-top:.45rem; color:var(--text-secondary); font-size:.76rem; }
+    .learning-steps span { display:inline-flex; gap:.35rem; align-items:baseline; }
+    .learning-steps b { color:var(--google-blue-dark); }
+    button:focus-visible, select:focus-visible, a:focus-visible { outline:3px solid var(--google-blue-border); outline-offset:3px; }
+    @media (max-width:760px) {
+      .top-header-inner { padding:.65rem .85rem; gap:.5rem; flex-wrap:wrap; }
+      .brand-wordmark { font-size:.92rem; white-space:normal; max-width:100%; }
+      .header-actions { width:100%; justify-content:flex-end; }
+      .classroom-strip { padding:.65rem .85rem; }
+      .classroom-strip-inner { align-items:flex-start; gap:.6rem; }
+      .classroom-strip-inner > div:first-child { align-items:flex-start !important; flex-wrap:wrap; }
+      .classroom-stats { flex-wrap:wrap; gap:.35rem .8rem; }
+      .learning-notice { padding:0 .85rem; margin-top:.75rem; }
+      .learning-notice-inner { padding:.75rem; }
+      .app-viewport { margin-top:.75rem; padding:0 .85rem 1.25rem; }
+      .serp-searchbar-header { padding:.9rem; }
+      .serp-search-input-box { min-width:0; width:100%; }
+      .serp-meta-status-bar { padding:.65rem .9rem; }
+      .serp-results-list { padding:.75rem; min-height:0; }
+      .serp-item { padding:.75rem; gap:.6rem; }
+      .serp-rank-col { width:34px; }
+      .serp-title { font-size:1rem; }
+      .discussion-grid { grid-template-columns:1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -1290,6 +1324,21 @@
       <div class="classroom-stats">
         <div><span class="stat-label">Milestone: </span><span class="stat-val" id="meta-engine-tag">1 / 16 · Florida (2003)</span></div>
         <div><span class="stat-label">Index Status: </span><span class="stat-val" id="meta-status-tag">Pre-Update Baseline</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="learning-notice" aria-label="How to use this educational simulator">
+    <div class="learning-notice-inner">
+      <div aria-hidden="true">ⓘ</div>
+      <div class="learning-notice-copy">
+        <strong>Learning simulation — not live Google data.</strong>
+        Search-result examples, domains, scores, ranking changes, and scenario metrics are illustrative teaching data. Historical summaries are simplified; they do not represent Google's private ranking systems or guarantee real-world outcomes.
+        <div class="learning-steps">
+          <span><b>1.</b> Choose a milestone</span>
+          <span><b>2.</b> Select a scenario</span>
+          <span><b>3.</b> Run it and compare results</span>
+        </div>
       </div>
     </div>
   </aside>
