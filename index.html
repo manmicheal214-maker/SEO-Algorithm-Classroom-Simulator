@@ -2829,8 +2829,31 @@
       }
     }
 
-    // Initialize on load
-    window.addEventListener("DOMContentLoaded", init);
+    // Initialize reliably whether this script runs before or after DOMContentLoaded.
+    function initializeSimulatorSafely() {
+      try {
+        populateTimelineSelect();
+        loadUpdate(0);
+      } catch (error) {
+        console.error("Simulator initialization failed:", error);
+        const timeline = document.getElementById("all-updates-select");
+        const scenario = document.getElementById("era-config-select");
+        [timeline, scenario].forEach((select) => {
+          if (select && select.options.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Options could not load — refresh the page";
+            select.appendChild(option);
+          }
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", initializeSimulatorSafely, { once: true });
+    } else {
+      initializeSimulatorSafely();
+    }
   </script>
 </body>
 </html>
