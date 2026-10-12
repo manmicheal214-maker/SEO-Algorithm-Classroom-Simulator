@@ -14,7 +14,7 @@ export function rankPages(query: string, intent: SearchIntent, pages: PageSignal
   if (!query.trim()) throw new TypeError("Enter a search query before running the simulation.");
   if (pages.length === 0) throw new TypeError("Add at least one example page before running the simulation.");
   const ids = new Set<string>();
-  const scored = pages.map((page) => {
+  const scored: RankedPage[] = pages.map((page): RankedPage => {
     const errors = validatePageSignals(page);
     if (errors.length) throw new TypeError(`${page.title || page.id || "Unnamed page"}: ${errors.join(" ")}`);
     if (ids.has(page.id)) throw new TypeError(`Duplicate page id: ${page.id}`);
