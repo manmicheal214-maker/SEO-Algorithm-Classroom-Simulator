@@ -4,7 +4,7 @@ import {rankPages,compareRankings} from "./engine/ranking";
 import type {PageSignals,SearchIntent} from "./engine/types";
 import {initialIntent,initialPages,initialQuery} from "./data/scenarios";
 import {milestones} from "./data/milestones";
-import {simulateMilestone,explainSignal} from "./engine/historySimulation";
+import {simulateMilestone} from "./engine/historySimulation";
 import {downloadJson,loadExperiments,saveExperiments,type SavedExperiment} from "./utils/persistence";
 type Tab="Overview"|"Ranking simulator"|"Competitor lab"|"Technical audit"|"Algorithm history"|"Learning center"|"Settings";
 const menu:{label:Tab;icon:any}[]=[{label:"Overview",icon:LayoutDashboard},{label:"Ranking simulator",icon:FlaskConical},{label:"Competitor lab",icon:Target},{label:"Technical audit",icon:Wrench},{label:"Algorithm history",icon:Activity},{label:"Learning center",icon:GraduationCap},{label:"Settings",icon:Settings}];
@@ -31,17 +31,17 @@ type HistoryState="idle"|"running"|"paused"|"completed";
 function HistoryLab({pages,query,intent}:{pages:PageSignals[];query:string;intent:SearchIntent}){
  const [index,setIndex]=useState(0),[baseline,setBaseline]=useState<PageSignals[]|null>(null),[before,setBefore]=useState<any>(null),[after,setAfter]=useState<any>(null),[state,setState]=useState<HistoryState>("idle"),[step,setStep]=useState(0);
  const timer=useRef<ReturnType<typeof setInterval>|null>(null);
- const milestone=milestones[index]??milestones[0];
+ const milestone=milestones[index]??milestones[0];\n const effectiveQuery=query.trim()||initialQuery;
  const stop=()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}setState(s=>s==="running"?"paused":s);};
  useEffect(()=>()=>{if(timer.current)clearInterval(timer.current);},[]);
  const choose=(next:number)=>{stop();setIndex(Math.max(0,Math.min(milestones.length-1,next)));setBaseline(null);setBefore(null);setAfter(null);setStep(0);setState("idle");};
- const execute=(m=milestone)=>{try{const start=baseline??pages.map(p=>({...p}));const pre=before??rankPages(query,intent,start);const transformed=simulateMilestone(start,m);const post=rankPages(query,intent,transformed.pages);setBaseline(start);setBefore(pre);setAfter(post);setStep(n=>n+1);setState("paused");}catch(e){setState("paused");}};
+ const execute=(m=milestone)=>{try{const start=baseline??pages.map(p=>({...p}));const pre=before??rankPages(effectiveQuery,intent,start);const transformed=simulateMilestone(start,m);const post=rankPages(query,intent,transformed.pages);setBaseline(start);setBefore(pre);setAfter(post);setStep(n=>n+1);setState("paused");}catch(e){setState("paused");}};
  const reset=()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}setBaseline(null);setBefore(null);setAfter(null);setStep(0);setState("idle");};
  const play=()=>{if(timer.current)return;setState("running");timer.current=setInterval(()=>{setIndex(current=>{const next=current+1;if(next>=milestones.length){if(timer.current)clearInterval(timer.current);timer.current=null;setState("completed");return current;}return next;});},2600);};
  useEffect(()=>{if(state==="running"){if(timer.current)clearInterval(timer.current);timer.current=setInterval(()=>setIndex(current=>{const next=current+1;if(next>=milestones.length){if(timer.current)clearInterval(timer.current);timer.current=null;setState("completed");return current;}return next;}),2600);}else if(timer.current){clearInterval(timer.current);timer.current=null;}return ()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}};},[state]);
  const currentSim=simulateMilestone(baseline??pages,milestone);
  const rows=before&&after?compareRankings(before,after):[];
- const baselineRank=before??rankPages(query,intent,pages);
+ const baselineRank=before??rankPages(effectiveQuery,intent,pages);
  const visibleRank=after??baselineRank;
  const currentFactors=currentSim.factors;
  const reasonFor=(id:string)=>{const entry=currentSim.reasons[id];return entry??"No material adjustment to the modeled signals for this page in this update."};
@@ -49,7 +49,7 @@ function HistoryLab({pages,query,intent}:{pages:PageSignals[];query:string;inten
  return <div className="history-lab">
  <div className="history-intro"><div><small>INTERACTIVE TIMELINE · {index+1} / {milestones.length}</small><h2>{milestone.name}</h2><p>{milestone.date} · {milestone.kind}</p></div><span className={"sim-state "+state}>{state==="running"?"● Playing":state==="completed"?"✓ Complete":state==="paused"?"Ⅱ Paused":"○ Ready"}</span></div>
  <div className="timeline card" aria-label="Algorithm history timeline"><div className="timeline-track">{milestones.map((m,i)=><button key={m.id} className={"timeline-point "+(i===index?"selected":"")+(i<index?" visited":"")} onClick={()=>choose(i)} aria-current={i===index?"step":undefined} title={m.name}><span>{i+1}</span><small>{m.date}</small><b>{m.name}</b></button>)}</div></div>
- <div className="history-controls card"><button onClick={()=>choose(index-1)} disabled={index===0}>← Previous</button><button onClick={()=>state==="running"?stop():play()}>{state==="running"?"Ⅱ Pause":"▶ Play"}</button><button onClick={()=>choose(index+1)} disabled={index===milestones.length-1}>Next →</button><button onClick={()=>execute()} className="primary">⚡ Execute Google Update</button><button onClick={()=>execute()} disabled={state==="running"}>Step Forward</button><button onClick={reset}>↺ Reset</button><button onClick={()=>{if(before){setAfter(null);setBaseline(null);setStep(0);setState("paused");}else execute();}} disabled={!before&&!after}>Revert / Compare Diff</button></div>
+ <div className="history-controls card"><button onClick={()=>choose(index-1)} disabled={index===0}>← Previous</button><button onClick={()=>state==="running"?stop():play()}>{state==="running"?"Ⅱ Pause":"▶ Play"}</button><button onClick={()=>choose(index+1)} disabled={index===milestones.length-1}>Next →</button><button onClick={()=>execute()} className="primary">⚡ Execute Google Update</button><button onClick={()=>execute()} disabled={state==="running"}>Step Forward</button><button onClick={reset}>↺ Reset</button><button onClick={()=>{if(after){setAfter(null);setBaseline(null);setBefore(null);setStep(0);setState("paused");}else execute();}} disabled={!before&&!after}>Revert / Compare Diff</button></div>
  <p className="note">Playback walks through dates; use <b>Execute Google Update</b> to apply the selected milestone's deterministic teaching rules. Every execution starts from the captured pre-update baseline, so updates are reversible and comparisons stay interpretable.</p>
  <div className="history-detail-grid">
  <article className="card"><h3>Historical context</h3><p>{milestone.summary}</p><h4>Purpose and practices affected</h4><p>{currentSim.purpose}</p><h4>Practical lesson for modern SEO</h4><p>{currentSim.lesson}</p><h4>Common misconception</h4><p>{milestone.misconception}</p><a href={milestone.sourceUrl} target="_blank" rel="noreferrer">{milestone.sourceLabel} ↗</a></article>
