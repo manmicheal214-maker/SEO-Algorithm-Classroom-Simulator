@@ -1,5 +1,5 @@
 export interface Milestone {
-  id: string; name: string; date: string; kind: "ranking system" | "infrastructure" | "spam policy" | "ranking update" | "page experience";
+  id: string; name: string; date: string; kind: "ranking system" | "infrastructure" | "spam policy" | "ranking update" | "page experience" | "search experience";
   summary: string; misconception: string; sourceLabel: string; sourceUrl: string;
 }
 export const milestones: Milestone[] = [
