@@ -1,0 +1,9 @@
+import type { PageSignals, SearchIntent } from "../engine/types";
+export const initialQuery = "best beginner mirrorless camera";
+export const initialIntent: SearchIntent = "commercial";
+export const initialPages: PageSignals[] = [
+ {id:"p1",title:"Beginner Mirrorless Cameras: Buying Guide",url:"https://example.com/camera-guide",description:"Compare beginner-friendly cameras, lenses, trade-offs and practical buying advice.",relevance:90,usefulness:92,titleHeadingMatch:90,internalLinkSupport:78,backlinkQuality:68,crawlability:95,mobileUsability:88,pageExperience:82,structuredDataValidity:65,freshness:82,trustEvidence:88,intentFit:94,duplicateContent:8,indexable:true},
+ {id:"p2",title:"Top 10 Cameras You Should Buy",url:"https://sample.example/cameras",description:"A short list of popular cameras with limited methodology or detail.",relevance:82,usefulness:48,titleHeadingMatch:88,internalLinkSupport:45,backlinkQuality:75,crawlability:90,mobileUsability:80,pageExperience:60,structuredDataValidity:40,freshness:60,trustEvidence:45,intentFit:72,duplicateContent:28,indexable:true},
+ {id:"p3",title:"Official Mirrorless Camera Products",url:"https://brand.example/mirrorless",description:"Official specifications, available models and product information.",relevance:80,usefulness:72,titleHeadingMatch:86,internalLinkSupport:70,backlinkQuality:80,crawlability:92,mobileUsability:86,pageExperience:90,structuredDataValidity:92,freshness:90,trustEvidence:90,intentFit:78,duplicateContent:5,indexable:true},
+ {id:"p4",title:"Camera Deals and Discount Codes",url:"https://deals.example/camera",description:"Current offers and deal listings with few independent comparisons.",relevance:72,usefulness:52,titleHeadingMatch:80,internalLinkSupport:42,backlinkQuality:35,crawlability:70,mobileUsability:64,pageExperience:48,structuredDataValidity:30,freshness:96,trustEvidence:38,intentFit:84,duplicateContent:35,indexable:true},
+];
