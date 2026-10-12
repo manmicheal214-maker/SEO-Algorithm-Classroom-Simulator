@@ -31,11 +31,12 @@ type HistoryState="idle"|"running"|"paused"|"completed";
 function HistoryLab({pages,query,intent}:{pages:PageSignals[];query:string;intent:SearchIntent}){
  const [index,setIndex]=useState(0),[baseline,setBaseline]=useState<PageSignals[]|null>(null),[before,setBefore]=useState<any>(null),[after,setAfter]=useState<any>(null),[state,setState]=useState<HistoryState>("idle"),[step,setStep]=useState(0);
  const timer=useRef<ReturnType<typeof setInterval>|null>(null);
- const milestone=milestones[index]??milestones[0];\n const effectiveQuery=query.trim()||initialQuery;
+ const milestone=milestones[index]??milestones[0];
+ const effectiveQuery=query.trim()||initialQuery;
  const stop=()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}setState(s=>s==="running"?"paused":s);};
  useEffect(()=>()=>{if(timer.current)clearInterval(timer.current);},[]);
  const choose=(next:number)=>{stop();setIndex(Math.max(0,Math.min(milestones.length-1,next)));setBaseline(null);setBefore(null);setAfter(null);setStep(0);setState("idle");};
- const execute=(m=milestone)=>{try{const start=baseline??pages.map(p=>({...p}));const pre=before??rankPages(effectiveQuery,intent,start);const transformed=simulateMilestone(start,m);const post=rankPages(query,intent,transformed.pages);setBaseline(start);setBefore(pre);setAfter(post);setStep(n=>n+1);setState("paused");}catch(e){setState("paused");}};
+ const execute=(m=milestone)=>{try{const start=baseline??pages.map(p=>({...p}));const pre=before??rankPages(effectiveQuery,intent,start);const transformed=simulateMilestone(start,m);const post=rankPages(effectiveQuery,intent,transformed.pages);setBaseline(start);setBefore(pre);setAfter(post);setStep(n=>n+1);setState("paused");}catch(e){setState("paused");}};
  const reset=()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}setBaseline(null);setBefore(null);setAfter(null);setStep(0);setState("idle");};
  const play=()=>{if(timer.current)return;setState("running");timer.current=setInterval(()=>{setIndex(current=>{const next=current+1;if(next>=milestones.length){if(timer.current)clearInterval(timer.current);timer.current=null;setState("completed");return current;}return next;});},2600);};
  useEffect(()=>{if(state==="running"){if(timer.current)clearInterval(timer.current);timer.current=setInterval(()=>setIndex(current=>{const next=current+1;if(next>=milestones.length){if(timer.current)clearInterval(timer.current);timer.current=null;setState("completed");return current;}return next;}),2600);}else if(timer.current){clearInterval(timer.current);timer.current=null;}return ()=>{if(timer.current){clearInterval(timer.current);timer.current=null;}};},[state]);
