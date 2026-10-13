@@ -1,5 +1,7 @@
 import express from "express";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
+import dns from "node:dns/promises";
+import net from "node:net";
 import "dotenv/config";
 
 const app = express();
@@ -55,6 +57,58 @@ function validProposal(p,available){
  return typeof p.title==="string"&&p.title.length<=140&&typeof p.summary==="string"&&p.summary.length<=700&&typeof p.rationale==="string"&&p.rationale.length<=900;
 }
 app.get("/health",(req,res)=>res.json({ok:true,service:"seo-scenario-agent",geminiConfigured:Boolean(ai)}));
+
+const tutorTools=[{functionDeclarations:[
+ {name:"propose_scenario",description:"Propose a supported educational Panda-style content quality experiment for student approval. Do not execute it.",parameters:{type:Type.OBJECT,properties:{title:{type:Type.STRING},learningObjective:{type:Type.STRING},milestoneId:{type:Type.STRING},searchIntent:{type:Type.STRING},query:{type:Type.STRING},hypothesis:{type:Type.STRING},controlledVariables:{type:Type.ARRAY,items:{type:Type.STRING}},changedVariables:{type:Type.ARRAY,items:{type:Type.STRING}},pageIds:{type:Type.ARRAY,items:{type:Type.STRING}},reflectionQuestions:{type:Type.ARRAY,items:{type:Type.STRING}}},required:["title","learningObjective","milestoneId","searchIntent","query","hypothesis","pageIds"]}},
+ {name:"explain_simulation_results",description:"Explain actual supplied simulator results without changing scores or positions.",parameters:{type:Type.OBJECT,properties:{summary:{type:Type.STRING},keyFactors:{type:Type.ARRAY,items:{type:Type.STRING}},pedagogicalTakeaway:{type:Type.STRING},suggestedNextStep:{type:Type.STRING}},required:["summary","keyFactors","pedagogicalTakeaway"]}}
+]}];
+const tutorInstruction=`You are the AI SEO Tutor inside an SEO classroom. Follow Learn → Predict → Experiment → Observe → Analyze → Improve → Reflect. Distinguish documented Google history from synthetic classroom assumptions and deterministic calculated outcomes. Never claim live Google/Search Console data. Never invent positions or scores. When a student asks to run an experiment, call propose_scenario and wait for approval; only Panda-style content-quality experiments are currently executable. Do not claim other milestones are executed. In Learn mode answer concepts; in Experiment mode ask for a hypothesis; in Real Website mode discuss only user-provided inspection evidence. For before/after analysis use headings: 1) Before the update, 2) What changed, 3) Why simulated results moved, 4) Learning takeaway. Be encouraging and concise.`;
+function isPrivateOrReservedIp(ip){
+ if(net.isIPv4(ip)){const p=ip.split(".").map(Number);return p[0]===0||p[0]===10||p[0]===127||(p[0]===169&&p[1]===254)||(p[0]===172&&p[1]>=16&&p[1]<=31)||(p[0]===192&&p[1]===168)||(p[0]===100&&p[1]>=64&&p[1]<=127)||p[0]>=224;}
+ if(net.isIPv6(ip)){const x=ip.toLowerCase();return x==="::1"||x==="::"||x.startsWith("fc")||x.startsWith("fd")||x.startsWith("fe80")||x.startsWith("::ffff:127.");}
+ return true;
+}
+async function validatePublicUrl(raw){
+ let url;try{url=new URL(raw);}catch{return {error:"Enter a valid website URL."};}
+ if(!["http:","https:"].includes(url.protocol))return {error:"Only HTTP and HTTPS URLs are allowed."};
+ const host=url.hostname.toLowerCase();
+ if(!host||host==="localhost"||host.endsWith(".localhost"))return {error:"Localhost URLs are not allowed."};
+ let addresses=[];try{addresses=net.isIP(host)?[host]:(await dns.lookup(host,{all:true})).map(x=>x.address);}catch{return {error:"The website hostname could not be resolved."};}
+ if(!addresses.length||addresses.some(isPrivateOrReservedIp))return {error:"Private, loopback, and reserved network addresses are blocked."};
+ return {url};
+}
+app.post("/api/ai/chat",async(req,res)=>{
+ const messages=req.body?.messages;const state=req.body?.simulatorState;const mode=["learn","experiment","real-website"].includes(req.body?.mode)?req.body.mode:"learn";
+ if(!ai)return res.status(503).json({error:"Gemini is not configured on the backend. Set GEMINI_API_KEY."});
+ if(!Array.isArray(messages)||!messages.length||messages.length>20||messages.some(m=>!isRecord(m)||!["user","assistant"].includes(m.role)||typeof m.content!=="string"||m.content.length>2000))return res.status(400).json({error:"Provide 1–20 valid chat messages, each under 2,000 characters."});
+ const contents=messages.map((m,i)=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content+(i===messages.length-1&&isRecord(state)?"\n\n[CURRENT SIMULATOR STATE]\nQuery: "+safeText(state.query,180)+"\nIntent: "+safeText(state.intent,40)+"\nPage count: "+(Number.isFinite(state.pageCount)?Math.max(0,Math.min(40,state.pageCount)):0)+"\nTop result: "+safeText(state.topTitle,180)+" (score "+(Number.isFinite(state.topScore)?state.topScore:"unknown")+")\nMode: "+mode:"") }]}));
+ try{
+  let response;try{response=await ai.models.generateContent({model,contents,config:{systemInstruction:tutorInstruction,tools:tutorTools,temperature:0.4}});}catch(primary){console.warn("Gemini primary request failed; retrying fallback model:",primary?.message||primary);response=await ai.models.generateContent({model:"gemini-2.5-flash",contents,config:{systemInstruction:tutorInstruction,tools:tutorTools,temperature:0.4}});}
+  res.json({text:safeText(response.text,5000),functionCalls:(response.functionCalls||[]).slice(0,3).map(call=>({name:safeText(call.name,80),args:isRecord(call.args)?call.args:{}})),finishReason:response.candidates?.[0]?.finishReason});
+ }catch(e){console.error("AI tutor chat failed:",e?.message||e);res.status(502).json({error:"The AI tutor could not respond right now. Please try again."});}
+});
+app.post("/api/ai/analyze-url",async(req,res)=>{
+ const raw=safeText(req.body?.url,2048);if(!raw)return res.status(400).json({error:"A website URL is required."});
+ const checked=await validatePublicUrl(raw);if(checked.error)return res.status(400).json({error:checked.error});
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),6000);
+ try{
+  const response=await fetch(checked.url.href,{signal:controller.signal,redirect:"manual",headers:{"User-Agent":"SEO-Strategy-Lab-EducationalBot/1.0","Accept":"text/html,application/xhtml+xml"}});
+  if(response.status>=300&&response.status<400)return res.status(400).json({error:"Redirected URLs are not fetched for safety. Enter the final HTTPS address directly."});
+  const type=response.headers.get("content-type")||"";if(!type.includes("text/html")&&!type.includes("application/xhtml+xml"))return res.status(415).json({error:"The URL did not return an HTML page."});
+  const reader=response.body?.getReader();let size=0;const chunks=[];
+  if(reader)while(true){const {done,value}=await reader.read();if(done)break;if(value){size+=value.length;if(size>512*1024){controller.abort();return res.status(413).json({error:"HTML page is larger than the 512 KB inspection limit."});}chunks.push(value);}}
+  const html=Buffer.concat(chunks).toString("utf8");
+  const match=(regex)=>html.match(regex)?.[1]?.replace(/&amp;/g,"&").replace(/&quot;/g,'"').trim()||"";
+  const title=match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const description=match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)||match(/<meta\s+content=["']([^"']*)["']\s+name=["']description["']/i);
+  const h1s=[...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map(m=>m[1].replace(/<[^>]+>/g," ").trim()).filter(Boolean).slice(0,5);
+  const canonical=match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i);
+  const robots=match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i);
+  const images=(html.match(/<img\b/gi)||[]).length;const imagesWithAlt=(html.match(/<img\b(?=[^>]*\balt\s*=)[^>]*>/gi)||[]).length;
+  res.json({url:checked.url.href,statusCode:response.status,contentType:type,observed:{title,metaDescription:description,h1Count:h1s.length,h1s,canonical,robotsMeta:robots,imagesFound:images,imagesWithAlt,hasStructuredData:/<script\s+type=["']application\/ld\+json["']/i.test(html)},extractedSignals:{title:title||"Inspected webpage",url:checked.url.href,description:description||"Extracted from page metadata.",crawlability:response.status===200&&!/noindex/i.test(robots)?92:20,indexable:!/noindex/i.test(robots),titleHeadingMatch:title&&h1s.length?82:title?55:25,structuredDataValidity:/<script\s+type=["']application\/ld\+json["']/i.test(html)?85:30,relevance:75,usefulness:70,internalLinkSupport:65,backlinkQuality:50,mobileUsability:75,pageExperience:70,freshness:70,trustEvidence:65,intentFit:70,duplicateContent:10},limitations:["Signal values not directly observable from HTML are illustrative defaults, not measurements.","This inspection does not crawl Google or validate live search rankings."]});
+ }catch(e){console.error("URL analysis failed:",e?.message||e);res.status(e?.name==="AbortError"?408:502).json({error:e?.name==="AbortError"?"Website inspection timed out.":"The website could not be inspected."});}finally{clearTimeout(timer);}
+});
+
 app.post("/api/agent/propose",async(req,res)=>{
  const prompt=safeText(req.body?.prompt,1200);const pages=req.body?.pages;const query=safeText(req.body?.query,180);const intent=["informational","navigational","commercial","transactional"].includes(req.body?.intent)?req.body.intent:"commercial";
  if(prompt.length<5)return res.status(400).json({error:"Describe the experiment in at least 5 characters."});
