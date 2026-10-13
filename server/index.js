@@ -56,7 +56,7 @@ function validProposal(p,available){
 }
 app.get("/health",(req,res)=>res.json({ok:true,service:"seo-scenario-agent",geminiConfigured:Boolean(ai)}));
 app.post("/api/agent/propose",async(req,res)=>{
- const prompt=safeText(req.body?.prompt,1200);const pages=req.body?.pages;
+ const prompt=safeText(req.body?.prompt,1200);const pages=req.body?.pages;const query=safeText(req.body?.query,180);const intent=["informational","navigational","commercial","transactional"].includes(req.body?.intent)?req.body.intent:"commercial";
  if(prompt.length<5)return res.status(400).json({error:"Describe the experiment in at least 5 characters."});
  if(!validPages(pages))return res.status(400).json({error:"Provide 1–40 valid example pages with supported SEO signals."});
  try{
