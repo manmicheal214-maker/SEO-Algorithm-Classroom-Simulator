@@ -1,6 +1,6 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
-import { timingSafeEqual } from "node:crypto";
+import "dotenv/config";
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
@@ -79,5 +79,5 @@ app.post("/api/agent/explain",async(req,res)=>{
  }catch(e){console.error("scenario explain failed:",e?.message||e);res.status(e?.status||502).json({error:e?.status?e.message:"The AI tutor could not explain these results. Please try again."});}
 });
 app.use((err,req,res,next)=>{if(err?.type==="entity.too.large")return res.status(413).json({error:"Request is too large."});if(err instanceof SyntaxError)return res.status(400).json({error:"Request body must be valid JSON."});console.error("backend error:",err?.message||err);res.status(500).json({error:"Unexpected server error."});});
-app.listen(port,"0.0.0.0",()=>console.log("SEO Scenario Agent listening on "+port));
-export {app};
+if (process.env.NODE_ENV !== "test") app.listen(port,"0.0.0.0",()=>console.log("SEO Scenario Agent listening on "+port));
+export {app, validProposal, validPages};
