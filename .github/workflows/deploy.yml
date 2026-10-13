@@ -29,6 +29,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build site
+        env:
+          VITE_SCENARIO_API_URL: ${{ vars.VITE_SCENARIO_API_URL }}
         run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
