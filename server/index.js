@@ -15,6 +15,7 @@ const MAX_BODY = "24kb";
 const timeoutMs = 18_000;
 
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 app.use((req,res,next)=>{
  const origin=req.headers.origin;
  if(origin && allowedOrigins.includes(origin)){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin");res.setHeader("Access-Control-Allow-Methods","POST,GET,OPTIONS");res.setHeader("Access-Control-Allow-Headers","Content-Type");}
@@ -23,7 +24,7 @@ app.use((req,res,next)=>{
 });
 app.use(express.json({limit:MAX_BODY,strict:true}));
 app.use((req,res,next)=>{
- const key=String(req.headers["x-forwarded-for"]||req.socket.remoteAddress||"unknown").split(",")[0].trim();
+ const key=String(req.ip||req.socket.remoteAddress||"unknown");
  const now=Date.now(); let bucket=buckets.get(key);
  if(!bucket||now-bucket.start>=WINDOW_MS){bucket={start:now,count:0};buckets.set(key,bucket);}
  bucket.count++;
