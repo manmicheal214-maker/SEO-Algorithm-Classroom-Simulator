@@ -23,7 +23,7 @@ GitHub Pages is static hosting and cannot securely store a Gemini key. Deploy th
 - Start command: `npm run start:server`
 - Health check path: `/health`
 - Environment secrets: `GEMINI_API_KEY` (required), `GEMINI_MODEL=gemini-2.5-flash`, `ALLOWED_ORIGINS=https://manmicheal214-maker.github.io`, `NODE_ENV=production`.
-- Set `VITE_SCENARIO_API_URL` to the backend HTTPS URL in the GitHub Pages build workflow before `npm run build`. Do not set it to the Gemini key. The current workflow can be configured with a repository variable named `VITE_SCENARIO_API_URL` and an `env:` entry on the Build site step; a frontend rebuild/redeploy is required after changing it.
+- Set a GitHub repository **Actions variable** named `VITE_SCENARIO_API_URL` to the backend HTTPS URL (Settings → Secrets and variables → Actions → Variables). The Pages workflow reads this variable during `npm run build`. Do not set it to the Gemini key. A frontend rebuild/redeploy is required after changing it.
 
 For local development add `http://localhost:3000,http://localhost:5173` to `ALLOWED_ORIGINS`. Do not commit `.env`. The backend enforces JSON body limits, short text limits, page/signal validation, a per-IP in-memory request limit, timeout handling, and allowlisted scenario actions. Rate limiting is per instance and resets on restart; use managed edge/API limits for high-traffic production.
 
