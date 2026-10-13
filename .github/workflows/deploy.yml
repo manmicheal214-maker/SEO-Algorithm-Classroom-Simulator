@@ -28,6 +28,12 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Test ranking engine
+        run: npm test
+      - name: Test AI backend validation and endpoints
+        run: npm run test:server
+      - name: Typecheck
+        run: npm run typecheck
       - name: Build site
         env:
           VITE_SCENARIO_API_URL: ${{ vars.VITE_SCENARIO_API_URL }}
