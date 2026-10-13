@@ -79,8 +79,8 @@ async function validatePublicUrl(raw){
 }
 app.post("/api/ai/chat",async(req,res)=>{
  const messages=req.body?.messages;const state=req.body?.simulatorState;const mode=["learn","experiment","real-website"].includes(req.body?.mode)?req.body.mode:"learn";
- if(!ai)return res.status(503).json({error:"Gemini is not configured on the backend. Set GEMINI_API_KEY."});
  if(!Array.isArray(messages)||!messages.length||messages.length>20||messages.some(m=>!isRecord(m)||!["user","assistant"].includes(m.role)||typeof m.content!=="string"||m.content.length>2000))return res.status(400).json({error:"Provide 1–20 valid chat messages, each under 2,000 characters."});
+ if(!ai)return res.status(503).json({error:"Gemini is not configured on the backend. Set GEMINI_API_KEY."});
  const contents=messages.map((m,i)=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content+(i===messages.length-1&&isRecord(state)?"\n\n[CURRENT SIMULATOR STATE]\nQuery: "+safeText(state.query,180)+"\nIntent: "+safeText(state.intent,40)+"\nPage count: "+(Number.isFinite(state.pageCount)?Math.max(0,Math.min(40,state.pageCount)):0)+"\nTop result: "+safeText(state.topTitle,180)+" (score "+(Number.isFinite(state.topScore)?state.topScore:"unknown")+")\nMode: "+mode:"") }]}));
  try{
   let response;try{response=await ai.models.generateContent({model,contents,config:{systemInstruction:tutorInstruction,tools:tutorTools,temperature:0.4}});}catch(primary){console.warn("Gemini primary request failed; retrying fallback model:",primary?.message||primary);response=await ai.models.generateContent({model:"gemini-2.5-flash",contents,config:{systemInstruction:tutorInstruction,tools:tutorTools,temperature:0.4}});}
