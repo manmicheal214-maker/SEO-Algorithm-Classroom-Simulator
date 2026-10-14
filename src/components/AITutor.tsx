@@ -18,6 +18,7 @@ function cleanAiOutput(value:string):string{
   .replace(/`{1,3}/g,"")
   .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,"$1 ($2)")
   .replace(/^\s*\d+[.)]\s+/gm,"")
+  .replace(/^\s*[-*#]+\s*/gm,"")
   .replace(/[ \t]+$/gm,"")
   .replace(/\n{3,}/g,"\n\n")
   .trim();
