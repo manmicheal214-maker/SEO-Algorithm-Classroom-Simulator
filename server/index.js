@@ -277,42 +277,9 @@ app.post("/api/ai/analyze-url", async (req, res) => {
   }
 });
 
-app.post("/api/agent/propose", async (req, res) => {
-  const prompt = safeText(req.body?.prompt, 1200);
-  const pages = req.body?.pages;
-  const query = safeText(req.body?.query, 180);
-  const intent = ["informational", "navigational", "commercial", "transactional"].includes(req.body?.intent) ? req.body.intent : "informational";
-  if (!prompt || prompt.length < 5) return res.status(400).json({ error: "Describe the experiment in at least 5 characters." });
-  if (!validPages(pages)) return res.status(400).json({ error: "Provide 1–40 valid example pages with supported SEO signals." });
-  try {
-    const compact = pages.map((p) => ({ id: p.id, title: p.title, url: p.url, usefulness: p.usefulness, duplicateContent: p.duplicateContent, trustEvidence: p.trustEvidence, relevance: p.relevance, intentFit: p.intentFit, pageQuality: p.pageQuality }));
-    const result = await generate("You are an SEO classroom scenario planner. Return JSON only with keys action,title,summary,rationale,pageIds,followUp. Only supported action is panda_content_quality. Base it on the user's prompt, query, intent, and the supplied page data. Choose exactly 3 page IDs from the provided set. If the prompt is vague or unsupported, ask the user to clarify in followUp.");
-    const proposal = { action: result.action, title: safeText(result.title, 140), summary: safeText(result.summary, 700), rationale: safeText(result.rationale, 900), pageIds: result.pageIds, followUp: safeText(result.followUp, 300) };
-    if (!validProposal(proposal, new Set(pages.map((p) => p.id)))) return res.status(502).json({ error: "The AI returned an unsupported scenario. Try describing a Panda-style content-quality experiment." });
-    res.json({ proposal });
-  } catch (e) {
-    console.error("scenario propose failed:", e?.message || e);
-    res.status(e?.status || 502).json({ error: e?.status ? e.message : "The scenario agent could not create a proposal. Please try again." });
-  }
-});
-
-app.post("/api/agent/explain", async (req, res) => {
-  const question = safeText(req.body?.question, 900);
-  const context = req.body?.context;
-  if (question.length < 2) return res.status(400).json({ error: "Ask a question about the experiment results." });
-  if (!isRecord(context) || !Array.isArray(context.rows) || context.rows.length > 40 || typeof context.query !== "string" || !["informational", "navigational", "commercial", "transactional"].includes(context.intent))
-    return res.status(400).json({ error: "Provide computed ranking context: query, intent, and at least one row with before/after scores and positions." });
-  const rows = context.rows.filter((r) => isRecord(r) && typeof r.title === "string" && Number.isFinite(r.beforeScore) && Number.isFinite(r.afterScore) && [r.beforePosition, r.afterPosition].every((v) => v === null || Number.isFinite(v)));
-  try {
-    const answer = await generate("You are an SEO tutor. Explain only the calculated results supplied below. Never invent scores, positions, or causal certainty. Explicitly distinguish the simulator's scoring from real-world SEO. For each row, describe how the score and position changed, and note whether the change is positive/negative/neutral. Be clear and concise.");
-    const response = { answer: safeText(answer.answer, 1400), followUp: safeText(answer.followUp, 300) };
-    if (!response.answer) return res.status(502).json({ error: "The AI returned an empty explanation. Please ask again." });
-    res.json(response);
-  } catch (e) {
-    console.error("scenario explain failed:", e?.message || e);
-    res.status(e?.status || 502).json({ error: e?.status ? e.message : "The AI tutor could not explain these results. Please try again." });
-  }
-});
+// AI Scenario Agent is disabled to prevent unnecessary Gemini token usage.
+app.post("/api/agent/propose", (req, res) => res.status(410).json({ error: "The AI Scenario Agent has been disabled." }));
+app.post("/api/agent/explain", (req, res) => res.status(410).json({ error: "The AI Scenario Agent has been disabled." }));
 
 app.use((err, req, res, next) => {
   if (err?.type === "entity.too.large") return res.status(413).json({ error: "Request is too large." });
