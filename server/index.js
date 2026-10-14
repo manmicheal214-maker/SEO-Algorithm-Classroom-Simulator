@@ -206,10 +206,10 @@ app.post("/api/ai/chat", async (req, res) => {
   if (
     !Array.isArray(messages) ||
     !messages.length ||
-    messages.length > 20 ||
+    messages.length > 3 ||
     messages.some((m) => !isRecord(m) || !["user", "assistant"].includes(m.role) || typeof m.content !== "string" || m.content.length > 2000)
   )
-    return res.status(400).json({ error: "Send a valid message history with user/assistant roles and text content." });
+    return res.status(400).json({ error: "Send up to 3 recent messages with user/assistant roles and text content." });
   if (!ai) return res.status(503).json({ error: "Gemini is not configured on the backend. Set GEMINI_API_KEY." });
 
   const contents = messages.map((m, i) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content + (i === messages.length - 1 && isRecord(state) ? "\n\n[CURRENT SIMULATOR STATE]\nQuery: " + safeText(state.query, 500) + "\nIntent: " + safeText(state.intent, 40) + "\nResults: " + JSON.stringify({ pageCount: Array.isArray(state.pages) ? state.pages.length : 0, focus: safeText(state.focus, 150), timeframe: safeText(state.timeframe, 80) }) : "") }] }));
