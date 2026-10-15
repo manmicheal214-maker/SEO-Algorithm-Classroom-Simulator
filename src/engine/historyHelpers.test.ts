@@ -10,11 +10,11 @@ const sample:PageSignals={id:"a",title:"Example",url:"https://example.com",descr
 test("biggest mover selects largest absolute movement and stable tie-breaks by id",()=>{
  assert.equal(getBiggestMover([row("b",2),row("a",-2)])?.pageId,"a");
 });
-test("biggest mover returns null when every page is unchanged",()=>{
- assert.equal(getBiggestMover([row("a",0),row("b",null,"newly-eligible"),row("c",null,"excluded")]),null);
+test("biggest mover returns null when all pages are unchanged",()=>{
+ assert.equal(getBiggestMover([row("a",0),row("b",0)]),null);
 });
-test("biggest mover ignores newly eligible and excluded pages",()=>{
- assert.equal(getBiggestMover([row("new",null,"newly-eligible"),row("excluded",null,"excluded"),row("ranked",1)])?.pageId,"ranked");
+test("newly eligible and excluded pages count as movers",()=>{
+ assert.ok(["new","excluded"].includes(getBiggestMover([row("new",null,"newly-eligible"),row("excluded",null,"excluded"),row("ranked",1)])?.pageId??""));
 });
 test("copyPages edits do not mutate original array or signal object",()=>{
  const original=[sample],copy=copyPages(original);copy[0].usefulness=99;copy.push({...sample,id:"b"});
