@@ -7,3 +7,44 @@
 
 /* AI tutor workflow adapted from the reference classroom */
 .tutor-modes{display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid #e5eaf2;padding-bottom:12px}.tutor-mode{border:1px solid #dce4ef;background:#f8faff;border-radius:8px;padding:9px 12px;font-size:11px;font-weight:700;color:#53627a}.tutor-mode.active{background:#14264b;color:#fff;border-color:#14264b}.tutor-thread{display:flex;flex-direction:column;gap:10px;max-height:500px;overflow:auto;padding:14px 0}.tutor-message{max-width:92%;padding:12px 14px;border-radius:10px;line-height:1.6}.tutor-message.assistant{align-self:flex-start;background:#f3f6fc;border:1px solid #e4eaf4}.tutor-message.user{align-self:flex-end;background:#eaf1ff;border:1px solid #d6e3ff}.tutor-message b{font-size:10px;color:#456080}.tutor-message p{white-space:pre-wrap;margin:6px 0 0;font-size:12px}.tutor-wait{display:flex;align-items:center;gap:8px;font-size:11px;color:#64748b}.agent-url-form{display:flex;gap:8px;margin-top:12px}.agent-url-form input{min-width:0;flex:1}.agent-url-form button{display:flex;align-items:center;gap:6px;white-space:nowrap}.audit-details{background:#f7f9fc;border-radius:8px;padding:10px 13px;margin-top:12px}.audit-details p{font-size:11px;overflow-wrap:anywhere;margin:7px 0}.agent-pill svg{display:inline;vertical-align:middle}@media(max-width:600px){.agent-url-form{flex-direction:column}.agent-url-form button{align-self:flex-start}.tutor-message{max-width:100%}}
+
+
+/* Time-travel lab: interactive comparison, quiz, and accessible risk spotlights */
+.history-view-toggle{display:flex;flex-wrap:wrap;gap:4px;background:#f0f3f9;padding:4px;border-radius:8px}
+.history-view-toggle button{border:0;background:transparent;color:#65758c;padding:7px 10px;border-radius:6px}
+.history-view-toggle button.active{background:#fff;color:#2864e8;box-shadow:0 1px 4px #17233b18;font-weight:800}
+.snippet-panel{margin-top:12px;border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}
+.snippet-panel h4{margin:0 0 8px;font-size:11px}
+.snippet-row{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line);animation:history-enter .3s ease-out both}
+.snippet-position{display:inline-flex;align-items:center;justify-content:center;background:#eef2f8;border-radius:6px;min-height:27px;font-size:10px;font-weight:800}
+.snippet-row>div{min-width:0}.snippet-row b{display:block;color:#2864e8;font-size:11px}.snippet-row small{display:block;color:var(--muted);font-size:9px;overflow-wrap:anywhere;margin:4px 0}.snippet-row p{font-size:10px;margin:0;line-height:1.5}
+.comparison-divider{display:flex;align-items:center;gap:10px;justify-content:center;padding:11px;color:#2864e8;font-size:10px;font-weight:800}
+.comparison-divider:before,.comparison-divider:after{content:"";height:1px;flex:1;background:var(--line)}
+.spotlight-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 4px}
+.spotlight-page{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.spotlight-page>b{font-size:10px;overflow-wrap:anywhere}
+.risk-badge,.safe-badge{display:inline-flex;max-width:100%;border:1px solid #f2d39a;background:#fff5df;color:#875300;border-radius:6px;padding:6px 8px;font-size:9px;line-height:1.4;cursor:help}
+.risk-badge:focus-visible{outline:3px solid #91b7ff;outline-offset:2px}
+.safe-badge{background:#e5f6eb;border-color:#c4ebd3;color:#08764e;cursor:default}
+.quiz-card{display:grid;gap:12px}
+.quiz-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.quiz-header small{font-size:9px;font-weight:800;letter-spacing:1px;color:#2864e8}
+.quiz-header h3{margin:6px 0}.quiz-header p{margin:0}
+.quiz-score{white-space:nowrap;background:#edf3ff;color:#2864e8;border-radius:99px;padding:8px 10px;font-size:10px;font-weight:800}
+.quiz-progress{height:5px;background:#e9eef6;border-radius:99px;overflow:hidden}.quiz-progress span{display:block;height:100%;background:#2864e8;transition:width .2s ease}
+.quiz-card>h4{font-size:13px;margin:3px 0}
+.quiz-options{display:grid;gap:8px}
+.quiz-option{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:#fff;color:var(--text);padding:11px;border-radius:8px;line-height:1.45}
+.quiz-option>span{display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;border-radius:6px;background:#eef2f8;font-size:10px;font-weight:800}
+.quiz-option.chosen{border-color:#8caeff;background:#f2f6ff}
+.quiz-option.correct{border-color:#9ddbb8;background:#eaf9f0;color:#08764e}
+.quiz-option.incorrect{border-color:#f0b9be;background:#fff0f1;color:#a32a35}
+.quiz-option:disabled{cursor:default}
+.quiz-feedback{border-radius:8px;padding:10px;font-size:10px;line-height:1.6;margin:0}
+.quiz-feedback.correct{background:#eaf9f0;color:#08764e}.quiz-feedback.incorrect{background:#fff0f1;color:#a32a35}
+.quiz-actions{display:flex;flex-wrap:wrap;gap:7px}
+.quiz-actions button,.history-controls button{border:1px solid var(--line);background:#fff;color:var(--text)}
+.quiz-actions button:disabled{opacity:.45;cursor:not-allowed}
+.history-ranking-row{animation:history-enter .3s ease-out both}
+@media(max-width:760px){.spotlight-grid{grid-template-columns:1fr}.quiz-header{flex-direction:column}.history-view-toggle{width:100%}.history-view-toggle button{flex:1}.snippet-row{grid-template-columns:29px minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.snippet-row,.history-ranking-row{animation:none}.quiz-progress span{transition:none}}
