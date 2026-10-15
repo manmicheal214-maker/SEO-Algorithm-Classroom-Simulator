@@ -72,3 +72,10 @@
 .history-lab button:focus-visible,.history-lab input:focus-visible,.history-lab select:focus-visible{outline:3px solid #8bb1ff;outline-offset:2px}
 @media(max-width:520px){.signal-grid,.prediction-options{grid-template-columns:1fr}.lab-actions{width:100%}.lab-actions button{flex:1}.history-signal{padding:9px}}
 @media(prefers-reduced-motion:reduce){.history-lab .history-ranking-row{animation:none;transition:none}}
+
+
+/* My website panel */
+.findings{margin:.5rem 0}
+.card h4{margin:.9rem 0 .2rem}
+.card textarea{width:100%;font-family:ui-monospace,monospace;font-size:.8rem}
+.range small{opacity:.7}
