@@ -48,3 +48,27 @@
 .history-ranking-row{animation:history-enter .3s ease-out both}
 @media(max-width:760px){.spotlight-grid{grid-template-columns:1fr}.quiz-header{flex-direction:column}.history-view-toggle{width:100%}.history-view-toggle button{flex:1}.snippet-row{grid-template-columns:29px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.snippet-row,.history-ranking-row{animation:none}.quiz-progress span{transition:none}}
+
+/* Interactive history learning panels */
+.prediction-panel,.quiz-results{display:grid;gap:10px}
+.prediction-toggle{display:flex;align-items:center;gap:8px;font-size:11px}
+.prediction-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.prediction-option{display:flex;align-items:center;gap:8px;padding:11px;border:1px solid var(--line);border-radius:8px;font-size:11px;overflow-wrap:anywhere}
+.prediction-option:focus-within{outline:2px solid #2864e8;outline-offset:2px}
+.prediction-result{border-radius:8px;padding:12px;font-size:11px;line-height:1.6}
+.prediction-result.correct{background:#eaf9f0;color:#08764e}.prediction-result.incorrect{background:#fff0f1;color:#a32a35}
+.lab-actions{display:flex;flex-wrap:wrap;gap:6px}
+.page-select{display:grid;gap:6px;max-width:520px;font-size:11px}
+.page-select select{width:100%;min-width:0}
+.signal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.history-signal{display:grid;gap:7px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:10px}
+.history-signal>span{display:flex;justify-content:space-between;gap:8px;font-size:10px;font-weight:700}
+.history-signal output{font-variant-numeric:tabular-nums}
+.history-signal input[type=range]{width:100%;min-width:0}
+.weighted-tag{font-size:9px;color:#2858bd;background:#edf3ff;border-radius:5px;padding:4px 6px;width:max-content;max-width:100%;overflow-wrap:anywhere}
+.rank-live{margin-top:12px;border-left:3px solid #2864e8;background:#f2f6ff;padding:10px;font-size:11px;line-height:1.5}
+.risk-action{display:grid;gap:5px;width:100%}.risk-action button{font-size:10px;align-self:flex-start}
+.quiz-results{border-top:1px solid var(--line);padding-top:12px;font-size:11px;line-height:1.6}
+.history-lab button:focus-visible,.history-lab input:focus-visible,.history-lab select:focus-visible{outline:3px solid #8bb1ff;outline-offset:2px}
+@media(max-width:520px){.signal-grid,.prediction-options{grid-template-columns:1fr}.lab-actions{width:100%}.lab-actions button{flex:1}.history-signal{padding:9px}}
+@media(prefers-reduced-motion:reduce){.history-lab .history-ranking-row{animation:none;transition:none}}
