@@ -20,7 +20,7 @@ const buildQuestions=(m:Milestone):Question[]=>{
  {q:"How should you use highlighted factors?",options:["Treat them as guaranteed ranking levers","Form a hypothesis and inspect the page","Ignore relevance and intent"],correct:1,why:"Factors are educational proxies, not a public specification."},
  {q:"Which response avoids overreacting to a ranking change?",options:["Diagnose from one position alone","Check context, competing results and usefulness","Add repeated keywords immediately"],correct:1,why:m.misconception},
  {q:"What is a limitation of this milestone model?",options:["It cannot make deterministic changes","It simplifies complex systems into editable signals","It uses live search data"],correct:1,why:"Real ranking systems are more complex than a simplified classroom profile."},
- {q:"What is a sensible page improvement?",options:["Raise every slider regardless of context","Improve a specific weakness while preserving helpfulness","Optimize only for the milestone name"],correct:1,why:m.lesson},
+ {q:"What is a sensible page improvement?",options:["Raise every slider regardless of context","Improve a specific weakness while preserving helpfulness","Optimize only for the milestone name"],correct:1,why:m.summary},
  {q:"Which conclusion is supported by this simulator?",options:["This exact position happened historically","Changing modeled inputs can alter sample rankings","Google publishes these weights"],correct:1,why:"The model teaches concepts, not real historical rankings."}
  ];
  return base.map((q,i)=>({...q,id:m.id+"-"+(i+1),milestoneId:m.id}));
