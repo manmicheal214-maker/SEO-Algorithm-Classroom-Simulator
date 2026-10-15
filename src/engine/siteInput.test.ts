@@ -19,7 +19,7 @@ test("good HTML derives strong title, mobile, structured data and title", () => 
 });
 
 test("noindex excludes the page and marks the Indexable finding as failed", () => {
-  const result = deriveSignalsFromHtml(good.replace("</head>", '<meta name="robots" content="noindex,follow"></head>'), "beginner mirrorless camera");
+  const result = deriveSignalsFromHtml(good.replace('<meta name="viewport" content="width=device-width">', "").replace("</head>", '<meta name="robots" content="noindex,follow"></head>'), "beginner mirrorless camera");
   assert.equal(result.indexable, false);
   assert.equal(result.signals.mobileUsability, 45);
   assert.equal(result.findings.find(f => f.label === "Indexable")?.ok, false);
