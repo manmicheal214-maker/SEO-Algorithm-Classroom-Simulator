@@ -49,7 +49,7 @@ export default function HistoryLab({pages,query,intent}:{pages:PageSignals[];que
  const correctPredictions=Object.values(saved.predictions).filter(p=>p.correct).length;
  useEffect(()=>save(saved),[saved]);
  useEffect(()=>{setLabPages(copyPages(pages));setSelectedId(pages[0]?.id??"");},[pages]);
- useEffect(()=>{setVisited(old=>new Set(old).add(milestone.id));},[milestone.id]);
+ useEffect(()=>{setVisited(old=>new Set(old).add(milestone.id));setQuickAnswer(null);setQuickSubmitted(false);},[milestone.id]);
  useEffect(()=>{if(state==="running"&&!pending){timer.current=setInterval(()=>setIndex(i=>{if(i>=milestones.length-1){setState("completed");return i;}return i+1;}),3200);}else if(pending)setState("paused");return ()=>{if(timer.current)clearInterval(timer.current);timer.current=null;};},[state,pending]);
  const goTo=(n:number)=>{setIndex(Math.max(0,Math.min(milestones.length-1,n)));setGuess("");setView("split");setState("paused");};
  const update=(key:SignalKey,value:number)=>setLabPages(old=>old.map(p=>p.id===selectedId?{...p,[key]:value}:p));
