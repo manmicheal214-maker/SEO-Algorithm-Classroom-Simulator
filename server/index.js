@@ -2,6 +2,7 @@ import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import dns from "node:dns/promises";
 import net from "node:net";
+import { isBlockedIp } from "./ip.js";
 import "dotenv/config";
 
 const app = express();
@@ -151,33 +152,6 @@ const tutorTools = [
 
 const tutorInstruction = `You are the AI SEO Tutor inside an SEO classroom. Follow Learn → Predict → Experiment → Observe → Analyze → Improve → Reflect. Distinguish documented Google historical guidance from the synthetic simulator model. Use the lesson intent and explain only the supplied data. If the question is outside the approved scenario, say so and guide the learner. Keep the tone supportive, precise, and educational.`;
 
-function isPrivateOrReservedIp(ip) {
-  if (net.isIPv4(ip)) {
-    const p = ip.split(".").map(Number);
-    return (
-      p[0] === 0 ||
-      p[0] === 10 ||
-      p[0] === 127 ||
-      (p[0] === 169 && p[1] === 254) ||
-      (p[0] === 172 && p[1] >= 16 && p[1] <= 31) ||
-      (p[0] === 192 && p[1] === 168) ||
-      (p[0] === 100 && p[1] >= 64 && p[1] <= 127) ||
-      (p[0] === 198 && (p[1] === 18 || p[1] === 19))
-    );
-  }
-  if (net.isIPv6(ip)) {
-    const x = ip.toLowerCase();
-    return (
-      x === "::1" ||
-      x === "::" ||
-      x.startsWith("fc") ||
-      x.startsWith("fd") ||
-      x.startsWith("fe80") ||
-      x.startsWith("::ffff:127.")
-    );
-  }
-  return true;
-}
 
 async function validatePublicUrl(raw) {
   let url;
@@ -186,7 +160,7 @@ async function validatePublicUrl(raw) {
   } catch {
     return { error: "Enter a valid website URL." };
   }
-  if (!["http:", "https:"].includes(url.protocol)) return { error: "Only HTTP and HTTPS URLs are allowed." };
+  if (!["http:", "https:"].includes(url.protocol)) return { error: "Only HTTP and HTTPS URLs are allowed." };\n  if (url.username || url.password) return { error: "URLs with credentials are not allowed." };\n  if ((url.protocol === "http:" && url.port && url.port !== "80") || (url.protocol === "https:" && url.port && url.port !== "443")) return { error: "Only ports 80 and 443 are allowed." };
   const host = url.hostname.toLowerCase();
   if (!host || host === "localhost" || host.endsWith(".localhost")) return { error: "Localhost URLs are not allowed." };
   let addresses = [];
@@ -195,7 +169,7 @@ async function validatePublicUrl(raw) {
   } catch {
     return { error: "The website hostname could not be resolved." };
   }
-  if (!addresses.length || addresses.some(isPrivateOrReservedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
+  if (!addresses.length || addresses.some(isBlockedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
   return { url };
 }
 
