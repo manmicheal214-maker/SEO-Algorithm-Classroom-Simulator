@@ -79,3 +79,6 @@
 .card h4{margin:.9rem 0 .2rem}
 .card textarea{width:100%;font-family:ui-monospace,monospace;font-size:.8rem}
 .range small{opacity:.7}
+
+/* Keep primary navigation reachable on narrow screens instead of hiding the sidebar. */
+@media(max-width:720px){.shell,.app{flex-direction:column}aside,.sidebar{display:flex;width:100%;max-width:100%;flex-direction:row;align-items:center;gap:6px;padding:8px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}.brand{flex:0 0 auto;padding:0 8px 0 0}.brand b{white-space:nowrap}.workspace,.disclaimer{display:none}.nav{flex:0 0 auto;white-space:nowrap;margin:0;padding:9px}.main{width:100%;min-width:0}.body{padding:12px}.sim{grid-template-columns:minmax(0,1fr)}.card{padding:13px}.history-detail-grid{grid-template-columns:1fr}.history-intro{align-items:flex-start;flex-direction:column}.result{grid-template-columns:22px minmax(0,1fr) 35px 16px;gap:6px}.result strong{overflow-wrap:anywhere}.tablewrap{max-width:100%}}
