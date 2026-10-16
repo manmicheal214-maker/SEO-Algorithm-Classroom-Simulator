@@ -165,7 +165,8 @@ async function validatePublicUrl(raw) {
     return { error: "Enter a valid website URL." };
   }
   if (!["http:", "https:"].includes(url.protocol)) return { error: "Only HTTP and HTTPS URLs are allowed." };
-  if (url.username || url.password) return { error: "URLs with credentials are not allowed." };\n  if ((url.protocol === "http:" && url.port && url.port !== "80") || (url.protocol === "https:" && url.port && url.port !== "443")) return { error: "Only ports 80 and 443 are allowed." };
+  if (url.username || url.password) return { error: "URLs with credentials are not allowed." };
+  if ((url.protocol === "http:" && url.port && url.port !== "80") || (url.protocol === "https:" && url.port && url.port !== "443")) return { error: "Only ports 80 and 443 are allowed." };
   const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (!host || host === "localhost" || host.endsWith(".localhost")) return { error: "Localhost URLs are not allowed." };
   let addresses = [];
