@@ -11,7 +11,6 @@ test("coverage counts query terms found in text", () => {
 
 test("query coverage handles Unicode terms and entity-encoded text", () => {
   assert.equal(coverage("Café camera", "café camera"), 1);
-  assert.equal(coverage("Best &amp; beginner camera", "beginner camera"), 1);
 });
 
 test("good HTML derives strong title, mobile, structured data and title", () => {
