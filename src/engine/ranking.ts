@@ -1,6 +1,8 @@
 import { scorePage, validatePageSignals } from "./scoring";
 import type { PageSignals, RankedPage, SearchIntent } from "./types";
 
+const compareText = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+
 export interface RankingResult {
   query: string;
   intent: SearchIntent;
@@ -26,8 +28,8 @@ export function rankPages(query: string, intent: SearchIntent, pages: PageSignal
   const compare = (a: RankedPage, b: RankedPage) =>
     Number(b.eligible) - Number(a.eligible) ||
     b.score - a.score ||
-    a.title.localeCompare(b.title) ||
-    a.id.localeCompare(b.id);
+    compareText(a.title, b.title) ||
+    compareText(a.id, b.id);
   scored.sort(compare);
   let position = 0;
   for (const page of scored) {
@@ -51,5 +53,5 @@ export function compareRankings(before: RankingResult, after: RankingResult) {
       ? (oldPositions.get(id) as number) - (newPositions.get(id) as number)
       : null,
     status: !oldPositions.has(id) ? "newly-eligible" as const : !newPositions.has(id) ? "excluded" as const : "ranked" as const,
-  })).sort((a, b) => (a.after ?? Number.MAX_SAFE_INTEGER) - (b.after ?? Number.MAX_SAFE_INTEGER) || a.pageId.localeCompare(b.pageId));
+  })).sort((a, b) => (a.after ?? Number.MAX_SAFE_INTEGER) - (b.after ?? Number.MAX_SAFE_INTEGER) || compareText(a.pageId, b.pageId));
 }
