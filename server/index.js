@@ -2,6 +2,8 @@ import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import dns from "node:dns/promises";
 import net from "node:net";
+import http from "node:http";
+import https from "node:https";
 import { isBlockedIp } from "./ip.js";
 import "dotenv/config";
 
@@ -176,7 +178,40 @@ async function validatePublicUrl(raw) {
     return { error: "The website hostname could not be resolved." };
   }
   if (!addresses.length || addresses.some(isBlockedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
-  return { url };
+  return { url, addresses };
+}
+
+function fetchPinnedHtml(url, addresses, timeoutMs = 6000, maxBytes = 512 * 1024) {
+  return new Promise((resolve, reject) => {
+    const transport = url.protocol === "https:" ? https : http;
+    const selected = addresses.find((address) => !isBlockedIp(address));
+    if (!selected) return reject(new Error("No safe resolved address."));
+    const family = net.isIP(selected);
+    const req = transport.request(url, {
+      method: "GET",
+      headers: { "User-Agent": "SEO-Strategy-Lab-EducationalBot/1.0", Accept: "text/html,application/xhtml+xml" },
+      // Pin the socket to an address already checked by validatePublicUrl. Keep url.hostname
+      // as the request host so HTTPS certificate validation and SNI use the original hostname.
+      lookup: (_hostname, _options, callback) => callback(null, selected, family),
+      timeout: timeoutMs,
+    }, (response) => {
+      const chunks = [];
+      let size = 0;
+      response.on("data", (chunk) => {
+        size += chunk.length;
+        if (size > maxBytes) {
+          req.destroy(Object.assign(new Error("HTML page is too large for analysis."), { code: "HTML_TOO_LARGE" }));
+          return;
+        }
+        chunks.push(chunk);
+      });
+      response.on("end", () => resolve({ statusCode: response.statusCode || 0, headers: response.headers, body: Buffer.concat(chunks) }));
+      response.on("error", reject);
+    });
+    req.on("timeout", () => req.destroy(Object.assign(new Error("Website inspection timed out."), { name: "AbortError" })));
+    req.on("error", reject);
+    req.end();
+  });
 }
 
 app.post("/api/ai/chat", async (req, res) => {
@@ -215,31 +250,15 @@ app.post("/api/ai/analyze-url", async (req, res) => {
   if (!raw) return res.status(400).json({ error: "A website URL is required." });
   const checked = await validatePublicUrl(raw);
   if (checked.error) return res.status(400).json({ error: checked.error });
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 6000);
   try {
-    const response = await fetch(checked.url.href, { signal: controller.signal, redirect: "manual", headers: { "User-Agent": "SEO-Strategy-Lab-EducationalBot/1.0", Accept: "text/html,application/xhtml+xml" } });
-    if (response.status >= 300 && response.status < 400) return res.status(400).json({ error: "Redirected URLs are not fetched for safety. Enter the final HTTPS address directly." });
-    const type = response.headers.get("content-type") || "";
-    if (!type.includes("text/html") && !type.includes("application/xhtml+xml")) return res.status(415).json({ error: "The URL did not return an HTML page." });
-    const reader = response.body?.getReader();
-    let size = 0;
-    const chunks = [];
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          size += value.length;
-          if (size > 512 * 1024) {
-            controller.abort();
-            return res.status(413).json({ error: "HTML page is too large for analysis." });
-          }
-          chunks.push(value);
-        }
-      }
-    }
-    const html = Buffer.concat(chunks).toString("utf8");
+    // Redirects are intentionally not followed: the user must submit the final URL so every
+    // connection is validated and pinned to the DNS answers checked above.
+    const response = await fetchPinnedHtml(checked.url, checked.addresses);
+    if (response.statusCode >= 300 && response.statusCode < 400) return res.status(400).json({ error: "Redirected URLs are not fetched for safety. Enter the final HTTPS address directly." });
+    if (response.statusCode < 200 || response.statusCode >= 300) return res.status(502).json({ error: "The website returned an unsuccessful response." });
+    const type = String(response.headers["content-type"] || "");
+    if (!type.toLowerCase().includes("text/html") && !type.toLowerCase().includes("application/xhtml+xml")) return res.status(415).json({ error: "The URL did not return an HTML page." });
+    const html = response.body.toString("utf8");
     const decodeEntities = (value) => value.replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&nbsp;/gi, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
     const match = (regex) => decodeEntities(html.match(regex)?.[1] || "").trim();
     const attr = (tag, name) => { const found = tag.match(new RegExp("\\b" + name + "\\s*=\\s*(['\"])(.*?)\\1", "i")); return found ? decodeEntities(found[2]).trim() : ""; };
@@ -255,9 +274,8 @@ app.post("/api/ai/analyze-url", async (req, res) => {
     res.json({ url: checked.url.href, statusCode: response.status, contentType: type, observed: { title, metaDescription: description, h1Count: h1s.length, h1s, canonical, robotsMeta: robots, imagesFound: images, imagesWithAlt } });
   } catch (e) {
     console.error("URL analysis failed:", e?.message || e);
+    if (e?.code === "HTML_TOO_LARGE") return res.status(413).json({ error: "HTML page is too large for analysis." });
     res.status(e?.name === "AbortError" ? 408 : 502).json({ error: e?.name === "AbortError" ? "Website inspection timed out." : "The website could not be inspected right now." });
-  } finally {
-    clearTimeout(timer);
   }
 });
 
