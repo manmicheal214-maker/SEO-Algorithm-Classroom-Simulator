@@ -22,11 +22,12 @@ export interface DerivedSite {
   findings: HtmlFinding[];
 }
 
+export const MAX_HTML_INPUT_LENGTH = 512 * 1024;
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 const stripTags = (s: string) => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
 
 export function queryTerms(query: string): string[] {
-  return [...new Set(query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 2))];
+  return [...new Set(query.normalize("NFKC").toLocaleLowerCase().split(/[^\\p{L}\\p{N}]+/u).filter((t) => [...t].length > 2))];
 }
 /** Share of query terms found in the text (0..1). */
 export function coverage(text: string, query: string): number {
@@ -47,7 +48,8 @@ function metaContent(html: string, name: string): string {
   return "";
 }
 
-export function deriveSignalsFromHtml(html: string, query: string, url = ""): DerivedSite {
+export function deriveSignalsFromHtml(input: string, query: string, url = ""): DerivedSite {
+  const html = input.slice(0, MAX_HTML_INPUT_LENGTH);
   const title = stripTags(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "");
   const description = metaContent(html, "description");
   const robots = metaContent(html, "robots").toLowerCase();
