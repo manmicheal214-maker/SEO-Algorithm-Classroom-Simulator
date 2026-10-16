@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "test": "tsx --test src/engine/*.test.ts",
+    "test": "tsx --test src/engine/*.test.ts src/utils/*.test.ts",
     "typecheck": "tsc --noEmit",
     "start:server": "node server/index.js",
     "dev:server": "node --watch server/index.js",
