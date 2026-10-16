@@ -27,13 +27,13 @@ const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 const stripTags = (s: string) => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
 
 export function queryTerms(query: string): string[] {
-  return [...new Set(query.normalize("NFKC").toLocaleLowerCase().split(/[^\\p{L}\\p{N}]+/u).filter((t) => [...t].length > 2))];
+  return [...new Set(query.normalize("NFKC").toLocaleLowerCase().split(/[^\p{L}\p{N}]+/u).filter((t) => [...t].length > 2))];
 }
 /** Share of query terms found in the text (0..1). */
 export function coverage(text: string, query: string): number {
   const terms = queryTerms(query);
   if (!terms.length) return 0;
-  const lower = text.toLowerCase();
+  const lower = text.normalize("NFKC").toLocaleLowerCase();
   return terms.filter((t) => lower.includes(t)).length / terms.length;
 }
 
