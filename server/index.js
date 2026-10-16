@@ -257,7 +257,7 @@ app.post("/api/ai/chat", async (req, res) => {
     res.json({ text, functionCalls, finishReason: safeText(response?.finishReason, 80) || "unknown" });
   } catch (e) {
     console.error("AI tutor chat failed:", e?.message || e);
-    res.status(502).json({ error: "The AI tutor could not respond right now. Please try again." });
+    res.status(e?.status === 504 ? 504 : 502).json({ error: e?.status === 504 ? "The AI tutor request timed out. Please try again." : "The AI tutor could not respond right now. Please try again." });
   }
 });
 
