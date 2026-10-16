@@ -2,6 +2,8 @@ import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import dns from "node:dns/promises";
 import net from "node:net";
+import http from "node:http";
+import https from "node:https";
 import { isBlockedIp } from "./ip.js";
 import "dotenv/config";
 
@@ -91,21 +93,23 @@ function parseJson(text) {
   return JSON.parse(clean);
 }
 
-async function generate(prompt) {
-  if (!ai) throw Object.assign(new Error("Gemini is not configured. Set GEMINI_API_KEY in the backend environment."), { status: 503 });
-  const work = ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json" } });
+async function withTimeout(work, ms = timeoutMs) {
   let timeout;
   try {
-    const result = await Promise.race([
+    return await Promise.race([
       work,
       new Promise((_, reject) => {
-        timeout = setTimeout(() => reject(Object.assign(new Error("The AI request timed out. Please try again."), { status: 504 })), timeoutMs);
+        timeout = setTimeout(() => reject(Object.assign(new Error("The AI request timed out. Please try again."), { status: 504 })), ms);
       }),
     ]);
-    return parseJson(result.text);
   } finally {
     clearTimeout(timeout);
   }
+}
+async function generate(prompt) {
+  if (!ai) throw Object.assign(new Error("Gemini is not configured. Set GEMINI_API_KEY in the backend environment."), { status: 503 });
+  const result = await withTimeout(ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json" } }));
+  return parseJson(result.text);
 }
 
 function validProposal(p, available) {
@@ -176,7 +180,40 @@ async function validatePublicUrl(raw) {
     return { error: "The website hostname could not be resolved." };
   }
   if (!addresses.length || addresses.some(isBlockedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
-  return { url };
+  return { url, addresses };
+}
+
+function fetchPinnedHtml(url, addresses, timeoutMs = 6000, maxBytes = 512 * 1024) {
+  return new Promise((resolve, reject) => {
+    const transport = url.protocol === "https:" ? https : http;
+    const selected = addresses.find((address) => !isBlockedIp(address));
+    if (!selected) return reject(new Error("No safe resolved address."));
+    const family = net.isIP(selected);
+    const req = transport.request(url, {
+      method: "GET",
+      headers: { "User-Agent": "SEO-Strategy-Lab-EducationalBot/1.0", Accept: "text/html,application/xhtml+xml" },
+      // Pin the socket to an address already checked by validatePublicUrl. Keep url.hostname
+      // as the request host so HTTPS certificate validation and SNI use the original hostname.
+      lookup: (_hostname, _options, callback) => callback(null, selected, family),
+      timeout: timeoutMs,
+    }, (response) => {
+      const chunks = [];
+      let size = 0;
+      response.on("data", (chunk) => {
+        size += chunk.length;
+        if (size > maxBytes) {
+          req.destroy(Object.assign(new Error("HTML page is too large for analysis."), { code: "HTML_TOO_LARGE" }));
+          return;
+        }
+        chunks.push(chunk);
+      });
+      response.on("end", () => resolve({ statusCode: response.statusCode || 0, headers: response.headers, body: Buffer.concat(chunks) }));
+      response.on("error", reject);
+    });
+    req.on("timeout", () => req.destroy(Object.assign(new Error("Website inspection timed out."), { name: "AbortError" })));
+    req.on("error", reject);
+    req.end();
+  });
 }
 
 app.post("/api/ai/chat", async (req, res) => {
@@ -197,16 +234,30 @@ app.post("/api/ai/chat", async (req, res) => {
   try {
     let response;
     try {
-      response = await ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, tools: tutorTools, temperature: 0.4 } });
+      response = await withTimeout(ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, tools: tutorTools, temperature: 0.4 } }));
     } catch (primary) {
       console.warn("Gemini primary call failed:", primary?.message || primary);
       // fallback without tools if primary fails
-      response = await ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, temperature: 0.4 } });
+      response = await withTimeout(ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, temperature: 0.4 } }));
     }
-    res.json({ text: safeText(response.text, 5000), functionCalls: (response.functionCalls || []).slice(0, 3).map((call) => ({ name: safeText(call.name, 80), args: isRecord(call.args) ? call.args : {} })), finishReason: response.finishReason || "unknown" });
+    const allowedCalls = new Set(["propose_scenario", "explain_simulation_results"]);
+    const functionCalls = Array.isArray(response?.functionCalls) ? response.functionCalls.slice(0, 3).flatMap((call) => {
+      if (!isRecord(call) || !allowedCalls.has(call.name) || !isRecord(call.args)) return [];
+      if (call.name === "propose_scenario") {
+        const args = call.args;
+        const pageIds = Array.isArray(args.pageIds) ? args.pageIds.filter((id) => typeof id === "string").slice(0, 3) : [];
+        const available = new Set(Array.isArray(state?.pages) ? state.pages.map((p) => p?.id).filter((id) => typeof id === "string") : []);
+        if (pageIds.length !== 3 || new Set(pageIds).size !== 3 || !pageIds.every((id) => available.has(id))) return [];
+        return [{ name: call.name, args: { title: safeText(args.title, 140), summary: safeText(args.summary, 700), rationale: safeText(args.rationale, 900), pageIds, followUp: safeText(args.followUp, 400) } }];
+      }
+      return [{ name: call.name, args: { answer: safeText(call.args.answer, 4000), followUp: safeText(call.args.followUp, 400) } }];
+    }) : [];
+    const text = safeText(response?.text, 5000);
+    if (!text && functionCalls.length === 0) throw new Error("AI response contained no usable text or supported action.");
+    res.json({ text, functionCalls, finishReason: safeText(response?.finishReason, 80) || "unknown" });
   } catch (e) {
     console.error("AI tutor chat failed:", e?.message || e);
-    res.status(502).json({ error: "The AI tutor could not respond right now. Please try again." });
+    res.status(e?.status === 504 ? 504 : 502).json({ error: e?.status === 504 ? "The AI tutor request timed out. Please try again." : "The AI tutor could not respond right now. Please try again." });
   }
 });
 
@@ -215,31 +266,15 @@ app.post("/api/ai/analyze-url", async (req, res) => {
   if (!raw) return res.status(400).json({ error: "A website URL is required." });
   const checked = await validatePublicUrl(raw);
   if (checked.error) return res.status(400).json({ error: checked.error });
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 6000);
   try {
-    const response = await fetch(checked.url.href, { signal: controller.signal, redirect: "manual", headers: { "User-Agent": "SEO-Strategy-Lab-EducationalBot/1.0", Accept: "text/html,application/xhtml+xml" } });
-    if (response.status >= 300 && response.status < 400) return res.status(400).json({ error: "Redirected URLs are not fetched for safety. Enter the final HTTPS address directly." });
-    const type = response.headers.get("content-type") || "";
-    if (!type.includes("text/html") && !type.includes("application/xhtml+xml")) return res.status(415).json({ error: "The URL did not return an HTML page." });
-    const reader = response.body?.getReader();
-    let size = 0;
-    const chunks = [];
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          size += value.length;
-          if (size > 512 * 1024) {
-            controller.abort();
-            return res.status(413).json({ error: "HTML page is too large for analysis." });
-          }
-          chunks.push(value);
-        }
-      }
-    }
-    const html = Buffer.concat(chunks).toString("utf8");
+    // Redirects are intentionally not followed: the user must submit the final URL so every
+    // connection is validated and pinned to the DNS answers checked above.
+    const response = await fetchPinnedHtml(checked.url, checked.addresses);
+    if (response.statusCode >= 300 && response.statusCode < 400) return res.status(400).json({ error: "Redirected URLs are not fetched for safety. Enter the final HTTPS address directly." });
+    if (response.statusCode < 200 || response.statusCode >= 300) return res.status(502).json({ error: "The website returned an unsuccessful response." });
+    const type = String(response.headers["content-type"] || "");
+    if (!type.toLowerCase().includes("text/html") && !type.toLowerCase().includes("application/xhtml+xml")) return res.status(415).json({ error: "The URL did not return an HTML page." });
+    const html = response.body.toString("utf8");
     const decodeEntities = (value) => value.replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&nbsp;/gi, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
     const match = (regex) => decodeEntities(html.match(regex)?.[1] || "").trim();
     const attr = (tag, name) => { const found = tag.match(new RegExp("\\b" + name + "\\s*=\\s*(['\"])(.*?)\\1", "i")); return found ? decodeEntities(found[2]).trim() : ""; };
@@ -255,9 +290,8 @@ app.post("/api/ai/analyze-url", async (req, res) => {
     res.json({ url: checked.url.href, statusCode: response.status, contentType: type, observed: { title, metaDescription: description, h1Count: h1s.length, h1s, canonical, robotsMeta: robots, imagesFound: images, imagesWithAlt } });
   } catch (e) {
     console.error("URL analysis failed:", e?.message || e);
+    if (e?.code === "HTML_TOO_LARGE") return res.status(413).json({ error: "HTML page is too large for analysis." });
     res.status(e?.name === "AbortError" ? 408 : 502).json({ error: e?.name === "AbortError" ? "Website inspection timed out." : "The website could not be inspected right now." });
-  } finally {
-    clearTimeout(timer);
   }
 });
 

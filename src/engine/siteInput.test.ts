@@ -9,6 +9,10 @@ test("coverage counts query terms found in text", () => {
   assert.equal(coverage("Best mirrorless camera", "best beginner mirrorless camera"), 0.75);
 });
 
+test("query coverage handles Unicode terms and entity-encoded text", () => {
+  assert.equal(coverage("Café camera", "café camera"), 1);
+});
+
 test("good HTML derives strong title, mobile, structured data and title", () => {
   const result = deriveSignalsFromHtml(good, "beginner mirrorless camera", "https://example.com/");
   assert.ok(result.signals.titleHeadingMatch! >= 90);
