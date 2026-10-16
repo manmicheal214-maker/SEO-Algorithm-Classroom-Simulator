@@ -93,21 +93,23 @@ function parseJson(text) {
   return JSON.parse(clean);
 }
 
-async function generate(prompt) {
-  if (!ai) throw Object.assign(new Error("Gemini is not configured. Set GEMINI_API_KEY in the backend environment."), { status: 503 });
-  const work = ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json" } });
+async function withTimeout(work, ms = timeoutMs) {
   let timeout;
   try {
-    const result = await Promise.race([
+    return await Promise.race([
       work,
       new Promise((_, reject) => {
-        timeout = setTimeout(() => reject(Object.assign(new Error("The AI request timed out. Please try again."), { status: 504 })), timeoutMs);
+        timeout = setTimeout(() => reject(Object.assign(new Error("The AI request timed out. Please try again."), { status: 504 })), ms);
       }),
     ]);
-    return parseJson(result.text);
   } finally {
     clearTimeout(timeout);
   }
+}
+async function generate(prompt) {
+  if (!ai) throw Object.assign(new Error("Gemini is not configured. Set GEMINI_API_KEY in the backend environment."), { status: 503 });
+  const result = await withTimeout(ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json" } }));
+  return parseJson(result.text);
 }
 
 function validProposal(p, available) {
@@ -232,13 +234,27 @@ app.post("/api/ai/chat", async (req, res) => {
   try {
     let response;
     try {
-      response = await ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, tools: tutorTools, temperature: 0.4 } });
+      response = await withTimeout(ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, tools: tutorTools, temperature: 0.4 } }));
     } catch (primary) {
       console.warn("Gemini primary call failed:", primary?.message || primary);
       // fallback without tools if primary fails
-      response = await ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, temperature: 0.4 } });
+      response = await withTimeout(ai.models.generateContent({ model, contents, config: { systemInstruction: tutorInstruction, temperature: 0.4 } }));
     }
-    res.json({ text: safeText(response.text, 5000), functionCalls: (response.functionCalls || []).slice(0, 3).map((call) => ({ name: safeText(call.name, 80), args: isRecord(call.args) ? call.args : {} })), finishReason: response.finishReason || "unknown" });
+    const allowedCalls = new Set(["propose_scenario", "explain_simulation_results"]);
+    const functionCalls = Array.isArray(response?.functionCalls) ? response.functionCalls.slice(0, 3).flatMap((call) => {
+      if (!isRecord(call) || !allowedCalls.has(call.name) || !isRecord(call.args)) return [];
+      if (call.name === "propose_scenario") {
+        const args = call.args;
+        const pageIds = Array.isArray(args.pageIds) ? args.pageIds.filter((id) => typeof id === "string").slice(0, 3) : [];
+        const available = new Set(Array.isArray(state?.pages) ? state.pages.map((p) => p?.id).filter((id) => typeof id === "string") : []);
+        if (pageIds.length !== 3 || new Set(pageIds).size !== 3 || !pageIds.every((id) => available.has(id))) return [];
+        return [{ name: call.name, args: { title: safeText(args.title, 140), summary: safeText(args.summary, 700), rationale: safeText(args.rationale, 900), pageIds, followUp: safeText(args.followUp, 400) } }];
+      }
+      return [{ name: call.name, args: { answer: safeText(call.args.answer, 4000), followUp: safeText(call.args.followUp, 400) } }];
+    }) : [];
+    const text = safeText(response?.text, 5000);
+    if (!text && functionCalls.length === 0) throw new Error("AI response contained no usable text or supported action.");
+    res.json({ text, functionCalls, finishReason: safeText(response?.finishReason, 80) || "unknown" });
   } catch (e) {
     console.error("AI tutor chat failed:", e?.message || e);
     res.status(502).json({ error: "The AI tutor could not respond right now. Please try again." });
