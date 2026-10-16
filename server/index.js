@@ -239,12 +239,16 @@ app.post("/api/ai/analyze-url", async (req, res) => {
       }
     }
     const html = Buffer.concat(chunks).toString("utf8");
-    const match = (regex) => html.match(regex)?.[1]?.replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim() || "";
+    const decodeEntities = (value) => value.replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&nbsp;/gi, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
+    const match = (regex) => decodeEntities(html.match(regex)?.[1] || "").trim();
+    const attr = (tag, name) => { const found = tag.match(new RegExp("\\b" + name + "\\s*=\\s*(['\"])(.*?)\\1", "i")); return found ? decodeEntities(found[2]).trim() : ""; };
+    const metaValue = (name) => { for (const tag of html.match(/<meta\b[^>]*>/gi) || []) if (attr(tag, "name").toLowerCase() === name) return attr(tag, "content"); return ""; };
+    const linkValue = (rel, attribute) => { for (const tag of html.match(/<link\b[^>]*>/gi) || []) if (attr(tag, "rel").toLowerCase().split(/\s+/).includes(rel)) return attr(tag, attribute); return ""; };
     const title = match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const description = match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i) || match(/<meta\s+content=["']([^"']*)["']\s+name=["']description["']/i);
+    const description = metaValue("description");
     const h1s = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => m[1].replace(/<[^>]+>/g, " ").trim()).filter(Boolean).slice(0, 5);
-    const canonical = match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i);
-    const robots = match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i);
+    const canonical = linkValue("canonical", "href");
+    const robots = metaValue("robots");
     const images = (html.match(/<img\b/gi) || []).length;
     const imagesWithAlt = (html.match(/<img\b(?=[^>]*\balt\s*=)[^>]*>/gi) || []).length;
     res.json({ url: checked.url.href, statusCode: response.status, contentType: type, observed: { title, metaDescription: description, h1Count: h1s.length, h1s, canonical, robotsMeta: robots, imagesFound: images, imagesWithAlt } });
