@@ -16,7 +16,8 @@ const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 const buckets = new Map();
 const WINDOW_MS = 60_000;
-const LIMIT = 12;
+const CHAT_LIMIT = Math.max(1, Number.parseInt(process.env.RATE_LIMIT_CHAT || "30", 10) || 30);
+const URL_LIMIT = Math.max(1, Number.parseInt(process.env.RATE_LIMIT_URL_INSPECTION || "10", 10) || 10);
 const MAX_BODY = "24kb";
 const timeoutMs = 18_000;
 
@@ -30,34 +31,37 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   }
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
 
-app.use(express.json({ limit: MAX_BODY, strict: true }));
-
-// Simple in-memory rate limiting per IP
+// Route-specific budgets avoid making a whole classroom behind one NAT share a tiny global quota.
 app.use((req, res, next) => {
-  const key = String(req.ip || req.socket.remoteAddress || "unknown");
+  if (req.path === "/health" || req.method === "OPTIONS") return next();
+  const limit = req.path === "/api/ai/chat" ? CHAT_LIMIT : req.path === "/api/ai/analyze-url" ? URL_LIMIT : null;
+  if (limit === null) return next();
   const now = Date.now();
+  const key = `${req.ip || req.socket.remoteAddress || "unknown"}:${req.path}`;
   let bucket = buckets.get(key);
   if (!bucket || now - bucket.start >= WINDOW_MS) {
     bucket = { start: now, count: 0 };
     buckets.set(key, bucket);
   }
-  bucket.count++;
-  if (bucket.count > LIMIT) {
-    res.setHeader("Retry-After", "60");
-    return res.status(429).json({ error: "Too many requests. Please wait a minute and try again." });
+  if (bucket.count >= limit) {
+    res.setHeader("Retry-After", String(Math.max(1, Math.ceil((WINDOW_MS - (now - bucket.start)) / 1000))));
+    return res.status(429).json({ error: "Too many requests for this endpoint. Please wait and try again." });
   }
+  bucket.count++;
   if (buckets.size > 2000) {
     for (const [k, v] of buckets) if (now - v.start >= WINDOW_MS) buckets.delete(k);
+    while (buckets.size > 2000) buckets.delete(buckets.keys().next().value);
   }
   next();
 });
+
+app.use(express.json({ limit: MAX_BODY, strict: true }));
 
 const safeText = (v, max = 1200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const isRecord = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
