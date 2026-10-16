@@ -2,6 +2,7 @@ import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import dns from "node:dns/promises";
 import net from "node:net";
+import { isBlockedIp } from "./ip.js";
 import "dotenv/config";
 
 const app = express();
@@ -15,7 +16,8 @@ const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 const buckets = new Map();
 const WINDOW_MS = 60_000;
-const LIMIT = 12;
+const CHAT_LIMIT = Math.max(1, Number.parseInt(process.env.RATE_LIMIT_CHAT || "30", 10) || 30);
+const URL_LIMIT = Math.max(1, Number.parseInt(process.env.RATE_LIMIT_URL_INSPECTION || "10", 10) || 10);
 const MAX_BODY = "24kb";
 const timeoutMs = 18_000;
 
@@ -29,34 +31,37 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   }
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
 
-app.use(express.json({ limit: MAX_BODY, strict: true }));
-
-// Simple in-memory rate limiting per IP
+// Route-specific budgets avoid making a whole classroom behind one NAT share a tiny global quota.
 app.use((req, res, next) => {
-  const key = String(req.ip || req.socket.remoteAddress || "unknown");
+  if (req.path === "/health" || req.method === "OPTIONS") return next();
+  const limit = req.path === "/api/ai/chat" ? CHAT_LIMIT : req.path === "/api/ai/analyze-url" ? URL_LIMIT : null;
+  if (limit === null) return next();
   const now = Date.now();
+  const key = `${req.ip || req.socket.remoteAddress || "unknown"}:${req.path}`;
   let bucket = buckets.get(key);
   if (!bucket || now - bucket.start >= WINDOW_MS) {
     bucket = { start: now, count: 0 };
     buckets.set(key, bucket);
   }
-  bucket.count++;
-  if (bucket.count > LIMIT) {
-    res.setHeader("Retry-After", "60");
-    return res.status(429).json({ error: "Too many requests. Please wait a minute and try again." });
+  if (bucket.count >= limit) {
+    res.setHeader("Retry-After", String(Math.max(1, Math.ceil((WINDOW_MS - (now - bucket.start)) / 1000))));
+    return res.status(429).json({ error: "Too many requests for this endpoint. Please wait and try again." });
   }
+  bucket.count++;
   if (buckets.size > 2000) {
     for (const [k, v] of buckets) if (now - v.start >= WINDOW_MS) buckets.delete(k);
+    while (buckets.size > 2000) buckets.delete(buckets.keys().next().value);
   }
   next();
 });
+
+app.use(express.json({ limit: MAX_BODY, strict: true }));
 
 const safeText = (v, max = 1200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const isRecord = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
@@ -151,33 +156,6 @@ const tutorTools = [
 
 const tutorInstruction = `You are the AI SEO Tutor inside an SEO classroom. Follow Learn → Predict → Experiment → Observe → Analyze → Improve → Reflect. Distinguish documented Google historical guidance from the synthetic simulator model. Use the lesson intent and explain only the supplied data. If the question is outside the approved scenario, say so and guide the learner. Keep the tone supportive, precise, and educational.`;
 
-function isPrivateOrReservedIp(ip) {
-  if (net.isIPv4(ip)) {
-    const p = ip.split(".").map(Number);
-    return (
-      p[0] === 0 ||
-      p[0] === 10 ||
-      p[0] === 127 ||
-      (p[0] === 169 && p[1] === 254) ||
-      (p[0] === 172 && p[1] >= 16 && p[1] <= 31) ||
-      (p[0] === 192 && p[1] === 168) ||
-      (p[0] === 100 && p[1] >= 64 && p[1] <= 127) ||
-      (p[0] === 198 && (p[1] === 18 || p[1] === 19))
-    );
-  }
-  if (net.isIPv6(ip)) {
-    const x = ip.toLowerCase();
-    return (
-      x === "::1" ||
-      x === "::" ||
-      x.startsWith("fc") ||
-      x.startsWith("fd") ||
-      x.startsWith("fe80") ||
-      x.startsWith("::ffff:127.")
-    );
-  }
-  return true;
-}
 
 async function validatePublicUrl(raw) {
   let url;
@@ -187,7 +165,9 @@ async function validatePublicUrl(raw) {
     return { error: "Enter a valid website URL." };
   }
   if (!["http:", "https:"].includes(url.protocol)) return { error: "Only HTTP and HTTPS URLs are allowed." };
-  const host = url.hostname.toLowerCase();
+  if (url.username || url.password) return { error: "URLs with credentials are not allowed." };
+  if ((url.protocol === "http:" && url.port && url.port !== "80") || (url.protocol === "https:" && url.port && url.port !== "443")) return { error: "Only ports 80 and 443 are allowed." };
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (!host || host === "localhost" || host.endsWith(".localhost")) return { error: "Localhost URLs are not allowed." };
   let addresses = [];
   try {
@@ -195,7 +175,7 @@ async function validatePublicUrl(raw) {
   } catch {
     return { error: "The website hostname could not be resolved." };
   }
-  if (!addresses.length || addresses.some(isPrivateOrReservedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
+  if (!addresses.length || addresses.some(isBlockedIp)) return { error: "Private, loopback, and reserved network addresses are blocked." };
   return { url };
 }
 
@@ -260,12 +240,16 @@ app.post("/api/ai/analyze-url", async (req, res) => {
       }
     }
     const html = Buffer.concat(chunks).toString("utf8");
-    const match = (regex) => html.match(regex)?.[1]?.replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim() || "";
+    const decodeEntities = (value) => value.replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&nbsp;/gi, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
+    const match = (regex) => decodeEntities(html.match(regex)?.[1] || "").trim();
+    const attr = (tag, name) => { const found = tag.match(new RegExp("\\b" + name + "\\s*=\\s*(['\"])(.*?)\\1", "i")); return found ? decodeEntities(found[2]).trim() : ""; };
+    const metaValue = (name) => { for (const tag of html.match(/<meta\b[^>]*>/gi) || []) if (attr(tag, "name").toLowerCase() === name) return attr(tag, "content"); return ""; };
+    const linkValue = (rel, attribute) => { for (const tag of html.match(/<link\b[^>]*>/gi) || []) if (attr(tag, "rel").toLowerCase().split(/\s+/).includes(rel)) return attr(tag, attribute); return ""; };
     const title = match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const description = match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i) || match(/<meta\s+content=["']([^"']*)["']\s+name=["']description["']/i);
+    const description = metaValue("description");
     const h1s = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => m[1].replace(/<[^>]+>/g, " ").trim()).filter(Boolean).slice(0, 5);
-    const canonical = match(/<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i);
-    const robots = match(/<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i);
+    const canonical = linkValue("canonical", "href");
+    const robots = metaValue("robots");
     const images = (html.match(/<img\b/gi) || []).length;
     const imagesWithAlt = (html.match(/<img\b(?=[^>]*\balt\s*=)[^>]*>/gi) || []).length;
     res.json({ url: checked.url.href, statusCode: response.status, contentType: type, observed: { title, metaDescription: description, h1Count: h1s.length, h1s, canonical, robotsMeta: robots, imagesFound: images, imagesWithAlt } });
